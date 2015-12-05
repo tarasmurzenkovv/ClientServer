@@ -14,7 +14,6 @@ public class MessageProcessor implements Callable<Void> {
 
     @Override
     public Void call() throws Exception {
-        System.out.println("starting message processing. ");
         String message = this.message.receive(socket.getInputStream());
         this.message.send(socket.getOutputStream(), message);
         return null;

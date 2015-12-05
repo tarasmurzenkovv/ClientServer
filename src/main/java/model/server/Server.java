@@ -42,6 +42,7 @@ public class Server {
             while (true) {
                 try {
                     Socket socket = serverSocket.accept();
+                    server.logger.debug("Client has connected: " + socket.getLocalSocketAddress().toString());
                     Callable<Void> messageProcessor = new MessageProcessor(socket);
                     server.pool.submit(messageProcessor);
                 } catch (IOException e) {
