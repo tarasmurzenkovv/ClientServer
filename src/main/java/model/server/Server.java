@@ -17,19 +17,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-    private final int NUMBER_OF_SPAWNED_THREADS = 50;
     private int portNumber;
     private String hostAddress;
     private ExecutorService pool;
+    private static final int NUMBER_OF_SPAWNED_THREADS = 50;
     private static Logger logger = Logger.getLogger(Server.class);
 
     private Server(File file) throws IOException {
-        initServerParametersFromConfigFile(file);
-    }
-
-    private void initServerParametersFromConfigFile(File configFile) throws IOException {
         try {
-            Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(configFile);
+            Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(file);
             this.portNumber = (Integer) configs.get("port");
             this.hostAddress = (String) configs.get("ip");
             this.pool = Executors.newFixedThreadPool(NUMBER_OF_SPAWNED_THREADS);
