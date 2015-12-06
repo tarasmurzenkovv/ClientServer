@@ -1,20 +1,16 @@
 package model.client;
 
 import model.message.Message;
+import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.Socket;
+import java.util.Map;
 
 public class Client implements Runnable {
-    private static final String SERVER_HOST = "ServerHost";
-    private static final String SERVER = "server";
-    private static final String PORT = "port";
     private int portNumber;
     private String serverAddrres;
     private Message message;
@@ -22,14 +18,12 @@ public class Client implements Runnable {
 
     private Client(File configFile) throws IOException {
         try {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(configFile);
-            String stringPortNumber = document.getElementsByTagName(SERVER).item(0).getAttributes().getNamedItem(PORT).getNodeValue();
-            this.portNumber = Integer.parseInt(stringPortNumber);
-            this.serverAddrres = document.getElementsByTagName(SERVER_HOST).item(0).getChildNodes().item(0).getNodeValue();
+            Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(configFile);
+            this.portNumber = (Integer) configs.get("port");
+            this.serverAddrres = (String) configs.get("ip");
+
         } catch (SAXException | ParserConfigurationException e) {
-            logger.error("Cannot read a config configFile. The client will exit. Exception stacktrace", e);
+            logger.error("Cannot read a config file. The client will exit. Exception " + e.getMessage().toString());
             System.exit(1);
         }
     }
@@ -45,7 +39,7 @@ public class Client implements Runnable {
     @Override
     public void run() {
         try {
-            while (true){
+            while (true) {
                 String gotMessageFromConsole = this.getStringFromInput(System.in);
                 Socket socket = new Socket(serverAddrres, portNumber);
                 this.message = new Message(socket);
@@ -53,16 +47,16 @@ public class Client implements Runnable {
                 this.message.receive(socket.getInputStream());
             }
         } catch (IOException e) {
-            logger.error("Exception from client", e);
+            logger.error("Exception from client. Exception" + e.getMessage().toString());
         }
     }
 
-    public static void start(File file){
+    public static void start(File file) {
         try {
             Client client = new Client(file);
             new Thread(client).start();
         } catch (IOException e) {
-            logger.error("Unable to start a client. Client thread will be terminated. Exception: ", e);
+            logger.error("Unable to start a client. Client thread will be terminated. Exception" + e.getMessage().toString());
             System.exit(1);
         }
     }

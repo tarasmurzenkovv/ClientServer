@@ -1,25 +1,22 @@
 package model.server;
 
 import model.message.MessageProcessor;
+import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-    private static final String SERVER_HOST = "ServerHost";
-    private static final String SERVER = "server";
-    private static final String PORT = "port";
     private final int NUMBER_OF_SPAWNED_THREADS = 50;
     private int portNumber;
     private String hostAddress;
@@ -32,15 +29,12 @@ public class Server {
 
     private void initServerParametersFromConfigFile(File configFile) throws IOException {
         try {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(configFile);
-            String stringPortNumber = document.getElementsByTagName(SERVER).item(0).getAttributes().getNamedItem(PORT).getNodeValue();
-            this.portNumber = Integer.parseInt(stringPortNumber);
-            this.hostAddress = document.getElementsByTagName(SERVER_HOST).item(0).getChildNodes().item(0).getNodeValue();
+            Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(configFile);
+            this.portNumber = (Integer) configs.get("port");
+            this.hostAddress = (String) configs.get("ip");
             this.pool = Executors.newFixedThreadPool(NUMBER_OF_SPAWNED_THREADS);
-        } catch (SAXException | ParserConfigurationException e) {
-            logger.error("Cannot read a config configFile. The sever will exit. Exception stacktrace", e);
+        } catch (FileNotFoundException| SAXException | ParserConfigurationException e) {
+            logger.error("Cannot read a config file. The sever will exit. Exception " + e.getMessage().toString());
             System.exit(1);
         }
     }
