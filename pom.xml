@@ -24,14 +24,14 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>model.server.MainServer</mainClass>
+                            <mainClass>model.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <outputDirectory>/Users/terance1/</outputDirectory>
-                    <finalName>server</finalName>
+                    <outputDirectory>/Users/terance1/Desktop/app</outputDirectory>
+                    <finalName>app</finalName>
                     <!--Avoid conctanating "jar-with-dependencies"-->
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
