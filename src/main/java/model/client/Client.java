@@ -43,15 +43,17 @@ public class Client implements Runnable {
             String enteredName = Client.getStringFromInput(System.in);
             Message message = new Message(socket);
             message.send("INFO#" + enteredName);
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 7; i++) {
                 System.out.println(message.receive());
             }
             while (true) {
                 String gotMessageFromConsole = Client.getStringFromInput(System.in);
                 if ("quit".equals(gotMessageFromConsole)) {
-                    System.out.println("Buy!");
+                    this.message.send("quit");
+                    System.out.println("Buy, thx for using this server!");
                     break;
                 }
+                socket = new Socket(serverAddrres,portNumber);
                 this.message = new Message(socket);
                 this.message.send(gotMessageFromConsole);
                 System.out.println(this.message.receive());

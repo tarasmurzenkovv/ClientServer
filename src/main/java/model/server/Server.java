@@ -44,7 +44,8 @@ public class Server {
             while (true) {
                 try {
                     Server.socket = serverSocket.accept();
-                    logger.debug("Client has connected: " + socket.getLocalSocketAddress().toString());
+                    String connectedIP = socket.getRemoteSocketAddress().toString();
+                    logger.debug("Client has connected: " + connectedIP);
                     Callable<Void> messageProcessor = new ServerMessageProcessor(socket);
                     server.pool.submit(messageProcessor);
                 } catch (IOException e) {
