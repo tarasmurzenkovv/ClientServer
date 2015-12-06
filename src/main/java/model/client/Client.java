@@ -28,23 +28,33 @@ public class Client implements Runnable {
         }
     }
 
-    private String getStringFromInput(InputStream inputStream) throws IOException {
+    private static String getStringFromInput(InputStream inputStream) throws IOException {
         String s;
         BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
         s = bufferRead.readLine();
-        logger.debug("Got from system.in: " + s);
         return s;
     }
 
     @Override
     public void run() {
         try {
+            Socket socket = new Socket(serverAddrres, portNumber);
+            System.out.print("Enter your name:");
+            String enteredName = Client.getStringFromInput(System.in);
+            Message message = new Message(socket);
+            message.send("INFO#" + enteredName);
+            for (int i = 0; i < 6; i++) {
+                System.out.println(message.receive());
+            }
             while (true) {
-                String gotMessageFromConsole = this.getStringFromInput(System.in);
-                Socket socket = new Socket(serverAddrres, portNumber);
+                String gotMessageFromConsole = Client.getStringFromInput(System.in);
+                if ("quit".equals(gotMessageFromConsole)) {
+                    System.out.println("Buy!");
+                    break;
+                }
                 this.message = new Message(socket);
-                this.message.send(socket.getOutputStream(), gotMessageFromConsole);
-                this.message.receive(socket.getInputStream());
+                this.message.send(gotMessageFromConsole);
+                System.out.println(this.message.receive());
             }
         } catch (IOException e) {
             logger.error("Exception from client. Exception" + e.getMessage().toString());
@@ -53,8 +63,7 @@ public class Client implements Runnable {
 
     public static void start(File file) {
         try {
-            Client client = new Client(file);
-            new Thread(client).start();
+            new Thread(new Client(file)).start();
         } catch (IOException e) {
             logger.error("Unable to start a client. Client thread will be terminated. Exception" + e.getMessage().toString());
             System.exit(1);

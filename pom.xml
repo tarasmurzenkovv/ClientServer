@@ -30,7 +30,7 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <outputDirectory>/Users/terance1/Desktop/app</outputDirectory>
+                    <outputDirectory>/Users/terance1</outputDirectory>
                     <finalName>app</finalName>
                     <!--Avoid conctanating "jar-with-dependencies"-->
                     <appendAssemblyId>false</appendAssemblyId>
