@@ -32,7 +32,7 @@ public class Server {
             this.pool = Executors.newFixedThreadPool(NUMBER_OF_SPAWNED_THREADS);
         } catch (FileNotFoundException | SAXException | ParserConfigurationException e) {
             logger.error("Cannot read a config file. The sever will exit. Exception " + e.getMessage().toString());
-            System.exit(1);
+            System.exit(0);
         }
     }
 
@@ -54,7 +54,7 @@ public class Server {
             }
         } catch (IOException e) {
             logger.error("Cannot start a server. The sever will exit. Exception stacktrace", e);
-            System.exit(1);
+            System.exit(0);
         }
     }
 }

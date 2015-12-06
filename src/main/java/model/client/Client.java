@@ -24,7 +24,7 @@ public class Client implements Runnable {
 
         } catch (SAXException | ParserConfigurationException e) {
             logger.error("Cannot read a config file. The client will exit. Exception " + e.getMessage().toString());
-            System.exit(1);
+            System.exit(0);
         }
     }
 
@@ -68,7 +68,7 @@ public class Client implements Runnable {
             new Thread(new Client(file)).start();
         } catch (IOException e) {
             logger.error("Unable to start a client. Client thread will be terminated. Exception" + e.getMessage().toString());
-            System.exit(1);
+            System.exit(0);
         }
     }
 }

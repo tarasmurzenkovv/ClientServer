@@ -24,7 +24,7 @@ public class Main {
             logger.error("To start a server: java –jar app.jar –server –config config.xml");
             logger.error("To start a client: java –jar app.jar –client –config config.xml");
             logger.error("Program will be terminated");
-            System.exit(1);
+            System.exit(0);
         }
         processedInputParams[0] = type;
         processedInputParams[1] = fileName;
