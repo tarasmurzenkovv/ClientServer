@@ -1,6 +1,8 @@
 package model.server;
 
-import model.message.ServerMessageProcessor;
+import model.message.Message;
+import model.processor.ServerProtocolProcessor;
+import model.message.ServerTask;
 import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -31,7 +33,7 @@ public class Server {
             this.hostAddress = (String) configs.get("ip");
             this.pool = Executors.newFixedThreadPool(NUMBER_OF_SPAWNED_THREADS);
         } catch (FileNotFoundException | SAXException | ParserConfigurationException e) {
-            logger.error("Cannot read a config file. The sever will exit. Exception " + e.getMessage().toString());
+            logger.error("Cannot read a config file. The sever will exit. Exception " + e.getMessage());
             System.exit(0);
         }
     }
@@ -41,13 +43,15 @@ public class Server {
             Server server = new Server(configFile);
             logger.debug("Server started with the following params: IP: " + server.hostAddress + " port: " + server.portNumber);
             ServerSocket serverSocket = new ServerSocket(server.portNumber);
+
             while (true) {
                 try {
                     Server.socket = serverSocket.accept();
                     String connectedIP = socket.getRemoteSocketAddress().toString();
                     logger.debug("Client has connected: " + connectedIP);
-                    Callable<Void> messageProcessor = new ServerMessageProcessor(socket);
-                    server.pool.submit(messageProcessor);
+                    ServerProtocolProcessor serverProtocolProcessor = new ServerProtocolProcessor();
+                    Callable<Void> serverTask = new ServerTask(new Message(socket).receive()).registerAProtocolProcessor(serverProtocolProcessor);
+                    server.pool.submit(serverTask);
                 } catch (IOException e) {
                     logger.error("Unable to process a message from client. Exception: ", e);
                 }
