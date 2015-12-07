@@ -1,8 +1,8 @@
 package model.client;
 
 import model.message.Message;
+import model.processor.ClientReplyListener;
 import model.processor.ClientSideProtocolProcessor;
-import model.processor.ReplyListener;
 import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -45,7 +45,7 @@ public class Client implements Runnable {
             Message message = new Message(socket);
             message.setMessage("REQUEST_INFO#" + enteredName);
             ClientSideProtocolProcessor clientSideProtocolProcessor = new ClientSideProtocolProcessor();
-            clientSideProtocolProcessor.setOnReplyListener(new ReplyListener());
+            clientSideProtocolProcessor.setOnReplyListener(new ClientReplyListener());
             clientSideProtocolProcessor.process(message);
             while (true) {
                 String gotMessageFromConsole = Client.getStringFromInput(System.in);

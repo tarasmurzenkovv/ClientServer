@@ -8,15 +8,16 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 
 public class ClientSideProtocolProcessor implements Processable<Message> {
-    private ReplyListener replyListener;
     private static Logger logger = Logger.getLogger(ServerTask.class);
+    private ReplayListener replayListener;
 
-    public void setOnReplyListener(ReplyListener replyListener){
-        this.replyListener = replyListener;
+    public void setOnReplyListener(ReplayListener replyListener){
+        this.replayListener= replyListener;
     }
     @Override
     public void process(Message message) throws IOException {
         String stringMessage = message.getMessage();
+        message.setReplayListener(replayListener);
         // string pattern is the following: COMMAND_NAME#text or COMMAND_NAME
         String command = StringUtils.upperCase(stringMessage.split("#")[0]);
         logger.debug("Got the following for processing: " + command);
@@ -24,7 +25,6 @@ public class ClientSideProtocolProcessor implements Processable<Message> {
             // client has sent a string in the following format REQUEST_INFO#client_name
             case "REQUEST_INFO":
                 message.send(stringMessage);
-                replyListener.onReply(message.receive().getMessage());
                 break;
             case "SERVER_TIME":
                 message.send(command);
@@ -41,7 +41,6 @@ public class ClientSideProtocolProcessor implements Processable<Message> {
                 }
             default:
                 message.send(stringMessage);
-                message.receive();
                 break;
         }
     }

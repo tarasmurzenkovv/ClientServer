@@ -1,8 +1,9 @@
 package model.server;
 
 import model.message.Message;
-import model.processor.ServerProtocolProcessor;
 import model.message.ServerTask;
+import model.processor.ServerProtocolProcessor;
+import model.processor.ServerReplyListener;
 import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -50,7 +51,9 @@ public class Server {
                     String connectedIP = socket.getRemoteSocketAddress().toString();
                     logger.debug("Client has connected: " + connectedIP);
                     ServerProtocolProcessor serverProtocolProcessor = new ServerProtocolProcessor();
-                    Callable<Void> serverTask = new ServerTask(new Message(socket).receive()).registerAProtocolProcessor(serverProtocolProcessor);
+                    Message message = new Message(socket);
+                    message.setReplayListener(new ServerReplyListener());
+                    Callable<Void> serverTask = new ServerTask(message.receive()).registerAProtocolProcessor(serverProtocolProcessor);
                     server.pool.submit(serverTask);
                 } catch (IOException e) {
                     logger.error("Unable to process a message from client. Exception: ", e);
