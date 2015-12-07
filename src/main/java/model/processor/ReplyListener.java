@@ -1,4 +1,4 @@
-package model.message;
+package model.processor;
 
 public class ReplyListener {
     public void onReply(String data) {

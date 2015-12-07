@@ -8,7 +8,6 @@ import java.net.Socket;
 public class Message {
     private Socket socket;
     private String message;
-    private ReplyListener replyListener;
 
     public Message(Socket socket) {
         this.socket = socket;
@@ -21,9 +20,6 @@ public class Message {
     public Message setMessage(String message) {
         this.message = message;
         return this;
-    }
-    public void setOnReplyListener(ReplyListener replyListener){
-        this.replyListener = replyListener;
     }
 
     public Socket getSocket() {
@@ -42,7 +38,6 @@ public class Message {
         DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream());
         data = dataInputStream.readUTF();
         this.setMessage(data);
-        replyListener.onReply(data);
         return this;
     }
 

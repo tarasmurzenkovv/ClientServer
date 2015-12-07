@@ -8,8 +8,12 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 
 public class ClientSideProtocolProcessor implements Processable<Message> {
+    private ReplyListener replyListener;
     private static Logger logger = Logger.getLogger(ServerTask.class);
 
+    public void setOnReplyListener(ReplyListener replyListener){
+        this.replyListener = replyListener;
+    }
     @Override
     public void process(Message message) throws IOException {
         String stringMessage = message.getMessage();
@@ -20,7 +24,7 @@ public class ClientSideProtocolProcessor implements Processable<Message> {
             // client has sent a string in the following format REQUEST_INFO#client_name
             case "REQUEST_INFO":
                 message.send(stringMessage);
-                message.receive();
+                replyListener.onReply(message.receive().getMessage());
                 break;
             case "SERVER_TIME":
                 message.send(command);
