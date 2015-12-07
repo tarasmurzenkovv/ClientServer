@@ -1,6 +1,8 @@
 package model.client;
 
 import model.message.Message;
+import model.message.ReplyListener;
+import model.processor.ClientSideProtocolProcessor;
 import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -13,7 +15,6 @@ import java.util.Map;
 public class Client implements Runnable {
     private int portNumber;
     private String serverAddrres;
-    private Message message;
     private static Logger logger = Logger.getLogger(Client.class);
 
     private Client(File configFile) throws IOException {
@@ -23,7 +24,7 @@ public class Client implements Runnable {
             this.serverAddrres = (String) configs.get("ip");
 
         } catch (SAXException | ParserConfigurationException e) {
-            logger.error("Cannot read a config file. The client will exit. Exception " + e.getMessage().toString());
+            logger.error("Cannot read a config file. The client will exit. Exception " + e.getMessage());
             System.exit(0);
         }
     }
@@ -38,28 +39,23 @@ public class Client implements Runnable {
     @Override
     public void run() {
         try {
-            Socket socket = new Socket(serverAddrres, portNumber);
             System.out.print("Enter your name:");
             String enteredName = Client.getStringFromInput(System.in);
+            Socket socket = new Socket(this.serverAddrres, this.portNumber);
             Message message = new Message(socket);
-            message.send("INFO#" + enteredName);
-            for (int i = 0; i < 7; i++) {
-                System.out.println(message.receive());
-            }
+            message.setOnReplyListener(new ReplyListener());
+            message.setMessage("REQUEST_INFO#" + enteredName);
+            ClientSideProtocolProcessor clientSideProtocolProcessor = new ClientSideProtocolProcessor();
+            clientSideProtocolProcessor.process(message);
             while (true) {
                 String gotMessageFromConsole = Client.getStringFromInput(System.in);
-                if ("quit".equals(gotMessageFromConsole)) {
-                    this.message.send("quit");
-                    System.out.println("Buy, thx for using this server!");
-                    break;
-                }
                 socket = new Socket(serverAddrres,portNumber);
-                this.message = new Message(socket);
-                this.message.send(gotMessageFromConsole);
-                System.out.println(this.message.receive());
+                message = new Message(socket);
+                message.setMessage(gotMessageFromConsole);
+                clientSideProtocolProcessor.process(message);
             }
         } catch (IOException e) {
-            logger.error("Exception from client. Exception" + e.getMessage().toString());
+            logger.error("Exception from client. Exception" + e.getMessage());
         }
     }
 
@@ -67,7 +63,7 @@ public class Client implements Runnable {
         try {
             new Thread(new Client(file)).start();
         } catch (IOException e) {
-            logger.error("Unable to start a client. Client thread will be terminated. Exception" + e.getMessage().toString());
+            logger.error("Unable to start a client. Client thread will be terminated. Exception" + e.getMessage());
             System.exit(0);
         }
     }
