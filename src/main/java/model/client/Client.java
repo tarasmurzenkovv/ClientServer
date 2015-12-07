@@ -3,10 +3,9 @@ package model.client;
 import model.message.Message;
 import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.Map;
 
@@ -16,16 +15,10 @@ public class Client implements Runnable {
     private static ServerReplyListener replyListener = new ServerReplyListener();
     private static Logger logger = Logger.getLogger(Client.class);
 
-    private Client(File configFile) throws IOException {
-        try {
-            Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(configFile);
-            this.portNumber = (Integer) configs.get("port");
-            this.serverAddrres = (String) configs.get("ip");
-
-        } catch (SAXException | ParserConfigurationException e) {
-            logger.error("Cannot read a config file. The client will exit. Exception " + e.getMessage());
-            System.exit(0);
-        }
+    private Client(File configFile){
+        Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(configFile);
+        this.portNumber = (Integer) configs.get("port");
+        this.serverAddrres = (String) configs.get("ip");
     }
 
     @Override
@@ -67,12 +60,12 @@ public class Client implements Runnable {
         try {
             System.out.print("Enter your name:");
             Client client = new Client(file);
-            Message message = new Message(new Socket(serverAddrres,portNumber));
+            Message message = new Message(new Socket(serverAddrres, portNumber));
             message.setMessage(System.in);
             replyListener.onReply(message);
             while (true) {
                 new Thread(client).start();
-                replyListener.onReply(message   );
+                replyListener.onReply(message);
             }
         } catch (IOException e) {
             logger.error("Client thread will be terminated. Exception" + e.getMessage());

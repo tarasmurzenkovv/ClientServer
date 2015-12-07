@@ -11,6 +11,10 @@ public class ServerTask implements Callable<Void> {
     private Message message;
     private static Logger logger = Logger.getLogger(ServerTask.class);
 
+    public ServerTask(Message message) {
+        this.message = message;
+    }
+
     private static String getInfoMessage(String clientName) {
 
         return "server:> Successful connection has been established. \n" +
