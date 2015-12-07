@@ -1,8 +1,6 @@
 package model.client;
 
 import model.message.Message;
-import model.processor.ClientReplyListener;
-import model.processor.ClientSideProtocolProcessor;
 import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -15,6 +13,7 @@ import java.util.Map;
 public class Client implements Runnable {
     private int portNumber;
     private String serverAddrres;
+    private static ServerReplyListener replyListener = new ServerReplyListener();
     private static Logger logger = Logger.getLogger(Client.class);
 
     private Client(File configFile) throws IOException {
@@ -29,41 +28,54 @@ public class Client implements Runnable {
         }
     }
 
-    private static String getStringFromInput(InputStream inputStream) throws IOException {
-        String s;
-        BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
-        s = bufferRead.readLine();
-        return s;
-    }
-
     @Override
     public void run() {
         try {
-            System.out.print("Enter your name:");
-            String enteredName = Client.getStringFromInput(System.in);
-            Socket socket = new Socket(this.serverAddrres, this.portNumber);
+            Socket socket = new Socket(serverAddrres, portNumber);
             Message message = new Message(socket);
-            message.setMessage("REQUEST_INFO#" + enteredName);
-            ClientSideProtocolProcessor clientSideProtocolProcessor = new ClientSideProtocolProcessor();
-            clientSideProtocolProcessor.setOnReplyListener(new ClientReplyListener());
-            clientSideProtocolProcessor.process(message);
-            while (true) {
-                String gotMessageFromConsole = Client.getStringFromInput(System.in);
-                socket = new Socket(serverAddrres,portNumber);
-                message = new Message(socket);
-                message.setMessage(gotMessageFromConsole);
-                clientSideProtocolProcessor.process(message);
+            message.setMessage(System.in);
+            logger.debug("Got the following for processing: " + message.getCommand());
+            switch (message.getCommand()) {
+                // client has sent a string in the following format REQUEST_INFO#client_name
+                case "REQUEST_INFO":
+                    message.send(message.getMessage());
+                    break;
+                case "SERVER_TIME":
+                    message.send("SERVER_TIME");
+                    break;
+                case "QUIT":
+                    message.send("QUIT");
+                    try {
+                        System.out.println("You have been disconnected");
+                        Thread.sleep(40);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } finally {
+                        System.exit(0);
+                    }
+                default:
+                    message.send(message.getMessage());
+                    break;
             }
+
         } catch (IOException e) {
             logger.error("Exception from client. Exception" + e.getMessage());
         }
     }
 
-    public static void start(File file) {
+    public void start(File file) {
         try {
-            new Thread(new Client(file)).start();
+            System.out.print("Enter your name:");
+            Client client = new Client(file);
+            Message message = new Message(new Socket(serverAddrres,portNumber));
+            message.setMessage(System.in);
+            replyListener.onReply(message);
+            while (true) {
+                new Thread(client).start();
+                replyListener.onReply(message   );
+            }
         } catch (IOException e) {
-            logger.error("Unable to start a client. Client thread will be terminated. Exception" + e.getMessage());
+            logger.error("Client thread will be terminated. Exception" + e.getMessage());
             System.exit(0);
         }
     }

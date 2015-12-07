@@ -1,9 +1,6 @@
 package model.server;
 
 import model.message.Message;
-import model.message.ServerTask;
-import model.processor.ServerProtocolProcessor;
-import model.processor.ServerReplyListener;
 import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -12,6 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
@@ -44,16 +42,14 @@ public class Server {
             Server server = new Server(configFile);
             logger.debug("Server started with the following params: IP: " + server.hostAddress + " port: " + server.portNumber);
             ServerSocket serverSocket = new ServerSocket(server.portNumber);
-
+            logger.debug("ip: "+ InetAddress.getLocalHost().toString());
             while (true) {
                 try {
                     Server.socket = serverSocket.accept();
                     String connectedIP = socket.getRemoteSocketAddress().toString();
                     logger.debug("Client has connected: " + connectedIP);
-                    ServerProtocolProcessor serverProtocolProcessor = new ServerProtocolProcessor();
                     Message message = new Message(socket);
-                    message.setReplayListener(new ServerReplyListener());
-                    Callable<Void> serverTask = new ServerTask(message.receive()).registerAProtocolProcessor(serverProtocolProcessor);
+                    Callable<Void> serverTask = new ServerTask(message.receive());
                     server.pool.submit(serverTask);
                 } catch (IOException e) {
                     logger.error("Unable to process a message from client. Exception: ", e);

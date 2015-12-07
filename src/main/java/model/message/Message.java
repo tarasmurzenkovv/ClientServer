@@ -1,16 +1,13 @@
 package model.message;
 
-import model.processor.ReplayListener;
+import org.apache.commons.lang3.StringUtils;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 public class Message {
     private Socket socket;
     private String message;
-    private ReplayListener replayListener;
 
     public Message(Socket socket) {
         this.socket = socket;
@@ -24,20 +21,27 @@ public class Message {
         this.message = message;
         return this;
     }
-
-    public void setReplayListener(ReplayListener replayListener) {
-        this.replayListener = replayListener;
-    }
-
     public Socket getSocket() {
         return socket;
+    }
+
+    public void setMessage(InputStream inputStream) throws IOException {
+        String s;
+        BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
+        s = bufferRead.readLine();
+        this.message = s;
+    }
+
+    public String getCommand(){
+        String stringMessage = this.getMessage();
+        // string pattern is the following: COMMAND_NAME#text or COMMAND_NAME
+        return StringUtils.upperCase(stringMessage.split("#")[0]);
     }
 
     public void send(String message) throws IOException {
         DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
         dataOutputStream.writeUTF(message);
         this.setMessage(message);
-        replayListener.onReply(this);
         dataOutputStream.flush();
     }
 
@@ -46,7 +50,6 @@ public class Message {
         DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream());
         data = dataInputStream.readUTF();
         this.setMessage(data);
-        replayListener.onReply(this);
         return this;
     }
 

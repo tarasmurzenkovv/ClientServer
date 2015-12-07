@@ -1,17 +1,17 @@
-package model.processor;
+package model.server;
 
 import model.message.Message;
-import model.message.ServerTask;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.concurrent.Callable;
 
-public class ServerProtocolProcessor implements Processable<Message> {
+public class ServerTask implements Callable<Void> {
+    private Message message;
     private static Logger logger = Logger.getLogger(ServerTask.class);
 
-    private static String getInfoMessage(String clientName){
+    private static String getInfoMessage(String clientName) {
 
         return "server:> Successful connection has been established. \n" +
                 "server:> Got your name: " + clientName + "\n" +
@@ -24,13 +24,12 @@ public class ServerProtocolProcessor implements Processable<Message> {
 
     public void process(Message message) throws IOException {
         // string pattern is the following: COMMAND_NAME#text or COMMAND_NAME
-        String command = StringUtils.upperCase(message.getMessage().split("#")[0]);
-
+        String command = message.getCommand();
         switch (command) {
             // client has sent a string in the following format REQUEST_INFO#client_name
             case "REQUEST_INFO":
                 String clientName = message.getMessage().split("#")[1];
-                message.send(ServerProtocolProcessor.getInfoMessage(clientName));
+                message.send(ServerTask.getInfoMessage(clientName));
                 break;
             case "SERVER_TIME":
                 Date date = new Date();
@@ -39,10 +38,18 @@ public class ServerProtocolProcessor implements Processable<Message> {
             case "QUIT":
                 logger.debug("Client has disconnected: " + message.getSocket().getLocalSocketAddress().toString());
                 message.getSocket().close();
+                break;
             default:
                 message.send("server:> " + message.getMessage());
                 break;
 
         }
+    }
+
+    @Override
+    public Void call() throws Exception {
+        this.process(this.message);
+
+        return null;
     }
 }
