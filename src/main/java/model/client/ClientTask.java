@@ -3,12 +3,14 @@ package model.client;
 import model.message.Message;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 
 public class ClientTask implements Runnable {
     private int portNumber;
     private String serverAddrres;
     private ReplyListener replyListener;
+    private InputStream inputStream;
     private static Message message;
 
     public ClientTask(int portNumber, String serverAddrres) {
@@ -21,9 +23,15 @@ public class ClientTask implements Runnable {
         ClientTask.message.setSocket(new Socket(this.serverAddrres, this.portNumber));
     }
 
-    public void setReplyListener(ReplyListener replyListener) {
+    public ClientTask setReplyListener(ReplyListener replyListener) {
         this.replyListener = replyListener;
+        return this;
     }
+    public ClientTask setInputStream(InputStream inputStream){
+        this.inputStream = inputStream;
+        return this;
+    }
+
 
     private void process(Message message) throws IOException {
         String command = message.getCommand();
@@ -53,18 +61,18 @@ public class ClientTask implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.print("Enter your name:");
             ClientTask clientTask = new ClientTask(portNumber, serverAddrres);
             Message message = new Message();
-            message.setMessage(System.in);
+
+            System.out.print("Enter your name:");
+            message.setMessage(this.inputStream);
             clientTask.setMessage(message);
             message.send("REQUEST_INFO#" + message.getMessage());
             // process "hi" response
-            clientTask.setReplyListener(m-> System.out.println(m.receive().toString()));
-            // start a processing the given message in a separate thread.
+            clientTask.setReplyListener(this.replyListener);
             while (true) {
                 message = new Message();
-                message.setMessage(System.in);
+                message.setMessage(this.inputStream);
                 this.process(message);
             }
         } catch (IOException e) {

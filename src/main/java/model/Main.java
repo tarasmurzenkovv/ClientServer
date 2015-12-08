@@ -1,6 +1,6 @@
 package model;
 
-import model.client.ClientTask;
+import model.client.Client;
 import model.server.Server;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -44,7 +44,7 @@ public class Main {
                 break;
             case "-client":
                 logger.debug("Started in a client mode. ");
-                ClientTask.start(properties, System.in);
+                new Client(properties,System.in).start();
                 break;
         }
     }
