@@ -8,6 +8,13 @@ import java.net.Socket;
 public class Message {
     private Socket socket;
     private String message;
+    public Message(){
+
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
 
     public Message(Socket socket) {
         this.socket = socket;
@@ -17,19 +24,20 @@ public class Message {
         return message;
     }
 
-    public Message setMessage(String message) {
-        this.message = message;
-        return this;
-    }
+
     public Socket getSocket() {
         return socket;
     }
 
-    public void setMessage(InputStream inputStream) throws IOException {
+    public void setMessageFromInputStream(InputStream inputStream) throws IOException {
         String s;
-        BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
+        BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
         s = bufferRead.readLine();
         this.message = s;
+    }
+
+    public void setMessageFromInputStream(String message) {
+        this.message = message;
     }
 
     public String getCommand(){
@@ -41,7 +49,7 @@ public class Message {
     public void send(String message) throws IOException {
         DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
         dataOutputStream.writeUTF(message);
-        this.setMessage(message);
+        this.setMessageFromInputStream(message);
         dataOutputStream.flush();
     }
 
@@ -49,7 +57,7 @@ public class Message {
         String data;
         DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream());
         data = dataInputStream.readUTF();
-        this.setMessage(data);
+        this.setMessageFromInputStream(data);
         return this;
     }
 

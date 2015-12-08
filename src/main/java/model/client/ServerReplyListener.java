@@ -6,6 +6,6 @@ import java.io.IOException;
 
 public class ServerReplyListener {
     public void onReply(Message message) throws IOException {
-        System.out.println("client:> " + message.receive().getMessage());
+        System.out.println(message.receive().getMessage());
     }
 }

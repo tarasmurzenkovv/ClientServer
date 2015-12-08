@@ -10,65 +10,82 @@ import java.net.Socket;
 import java.util.Map;
 
 public class Client implements Runnable {
-    private int portNumber;
-    private String serverAddrres;
-    private static ServerReplyListener replyListener = new ServerReplyListener();
+    private static int portNumber;
+    private static String serverAddrres;
+    private ServerReplyListener replyListener = new ServerReplyListener();
     private static Logger logger = Logger.getLogger(Client.class);
+    private static Message message;
 
-    private Client(File configFile){
+    private Client(File configFile) {
         Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(configFile);
-        this.portNumber = (Integer) configs.get("port");
-        this.serverAddrres = (String) configs.get("ip");
+        Client.portNumber = (Integer) configs.get("port");
+        Client.serverAddrres = (String) configs.get("ip");
+    }
+
+    public void setMessage(Message message) {
+        Client.message = message;
+        try {
+            Client.message.setSocket(new Socket(Client.serverAddrres, Client.portNumber));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void process(Message message) throws IOException {
+        String command = message.getCommand();
+        switch (command) {
+            case "REQUEST_INFO":
+                message.send(message.getMessage());
+                break;
+            case "SERVER_TIME":
+                message.send(command);
+                break;
+            case "QUIT":
+                message.send(command);
+                try {
+                    System.out.println("You have been disconnected");
+                    Thread.sleep(40);
+                    System.exit(0);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            default:
+                message.send(message.getMessage());
+                break;
+        }
+        this.replyListener.onReply(message);
     }
 
     @Override
     public void run() {
         try {
-            Socket socket = new Socket(serverAddrres, portNumber);
-            Message message = new Message(socket);
-            message.setMessage(System.in);
-            logger.debug("Got the following for processing: " + message.getCommand());
-            switch (message.getCommand()) {
-                // client has sent a string in the following format REQUEST_INFO#client_name
-                case "REQUEST_INFO":
-                    message.send(message.getMessage());
-                    break;
-                case "SERVER_TIME":
-                    message.send("SERVER_TIME");
-                    break;
-                case "QUIT":
-                    message.send("QUIT");
-                    try {
-                        System.out.println("You have been disconnected");
-                        Thread.sleep(40);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        System.exit(0);
-                    }
-                default:
-                    message.send(message.getMessage());
-                    break;
-            }
-
+            this.process(Client.message);
         } catch (IOException e) {
-            logger.error("Exception from client. Exception" + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    public void start(File file) {
+    public static void start(File file) {
         try {
+            // send a "hi" request
             System.out.print("Enter your name:");
             Client client = new Client(file);
-            Message message = new Message(new Socket(serverAddrres, portNumber));
-            message.setMessage(System.in);
-            replyListener.onReply(message);
+            Message message = new Message();
+            message.setMessageFromInputStream(System.in);
+            client.setMessage(message);
+            message.send("REQUEST_INFO#" + message.getMessage());
+            // process "hi" response
+            client.replyListener.onReply(message);
+            // start a processing the given message in a separate thread.
             while (true) {
-                new Thread(client).start();
-                replyListener.onReply(message);
+                message = new Message();
+                message.setMessageFromInputStream(System.in);
+                client.setMessage(message);
+                Thread thread = new Thread(client);
+                thread.start();
             }
         } catch (IOException e) {
-            logger.error("Client thread will be terminated. Exception" + e.getMessage());
+            logger.error("Client thread will be terminated. Exception " + e.getStackTrace().toString());
             System.exit(0);
         }
     }
