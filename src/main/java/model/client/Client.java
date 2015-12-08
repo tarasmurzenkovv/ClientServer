@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.util.Map;
 
@@ -22,13 +23,9 @@ public class Client implements Runnable {
         Client.serverAddrres = (String) configs.get("ip");
     }
 
-    public void setMessage(Message message) {
+    public void setMessage(Message message) throws IOException {
         Client.message = message;
-        try {
-            Client.message.setSocket(new Socket(Client.serverAddrres, Client.portNumber));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Client.message.setSocket(new Socket(Client.serverAddrres, Client.portNumber));
     }
 
     private void process(Message message) throws IOException {
@@ -65,13 +62,13 @@ public class Client implements Runnable {
         }
     }
 
-    public static void start(File file) {
+    public static void start(File file, InputStream inputStream) {
         try {
             // send a "hi" request
             System.out.print("Enter your name:");
             Client client = new Client(file);
             Message message = new Message();
-            message.setMessageFromInputStream(System.in);
+            message.setMessage(inputStream);
             client.setMessage(message);
             message.send("REQUEST_INFO#" + message.getMessage());
             // process "hi" response
@@ -79,7 +76,7 @@ public class Client implements Runnable {
             // start a processing the given message in a separate thread.
             while (true) {
                 message = new Message();
-                message.setMessageFromInputStream(System.in);
+                message.setMessage(inputStream);
                 client.setMessage(message);
                 Thread thread = new Thread(client);
                 thread.start();

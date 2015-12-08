@@ -3,11 +3,12 @@ package model;
 import model.client.Client;
 import model.server.Server;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 
 public class Main {
-    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(Main.class);
+    private static Logger logger = Logger.getLogger(Main.class);
     private static String[] processInputParams(String[] args) {
         String type = null;
         String fileName = null;
@@ -43,7 +44,7 @@ public class Main {
                 break;
             case "-client":
                 logger.debug("Started in a client mode. ");
-                Client.start(properties);
+                Client.start(properties, System.in);
                 break;
         }
     }

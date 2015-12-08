@@ -38,7 +38,8 @@ public class Server {
                     Server.socket = serverSocket.accept();
                     String connectedIP = socket.getRemoteSocketAddress().toString();
                     logger.debug("Client has connected: " + connectedIP);
-                    Message message = new Message(socket);
+                    Message message = new Message();
+                    message.setSocket(Server.socket);
                     Callable<Void> serverTask = new ServerTask(message.receive());
                     server.pool.submit(serverTask);
                 } catch (IOException e) {
