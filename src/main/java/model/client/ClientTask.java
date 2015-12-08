@@ -5,14 +5,12 @@ import model.message.Message;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.util.concurrent.CountDownLatch;
 
-public class ClientTask {
-
-    protected int portNumber;
-    protected String serverAddrres;
+public class ClientTask implements Runnable {
+    private int portNumber;
+    private String serverAddrres;
     private ReplyListener replyListener;
-    protected InputStream inputStream;
+    private InputStream inputStream;
     private static Message message;
 
     public ClientTask(int portNumber, String serverAddrres) {
@@ -29,11 +27,11 @@ public class ClientTask {
         this.replyListener = replyListener;
         return this;
     }
-
-    public ClientTask setInputStream(InputStream inputStream) throws IOException {
+    public ClientTask setInputStream(InputStream inputStream){
         this.inputStream = inputStream;
         return this;
     }
+
 
     private void process(Message message) throws IOException {
         String command = message.getCommand();
@@ -47,6 +45,7 @@ public class ClientTask {
             case "QUIT":
                 message.send(command);
                 try {
+                    System.out.println("You have been disconnected");
                     Thread.sleep(40);
                     System.exit(0);
                 } catch (InterruptedException e) {
@@ -57,5 +56,27 @@ public class ClientTask {
                 break;
         }
         this.replyListener.onReply(message);
+    }
+
+    @Override
+    public void run() {
+        try {
+            ClientTask clientTask = new ClientTask(portNumber, serverAddrres);
+            Message message = new Message();
+
+            System.out.print("Enter your name:");
+            message.setMessage(this.inputStream);
+            clientTask.setMessage(message);
+            message.send("REQUEST_INFO#" + message.getMessage());
+            // process "hi" response
+            clientTask.setReplyListener(this.replyListener);
+            while (true) {
+                message = new Message();
+                message.setMessage(this.inputStream);
+                this.process(message);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
