@@ -71,12 +71,14 @@ public class ClientTask implements Runnable {
             // process "hi" response
             clientTask.setReplyListener(this.replyListener);
             clientTask.process(message);
+            Thread.yield();
             while (true) {
                 clientTask = new ClientTask(portNumber, serverAddrres);
                 message = new Message();
                 message.readClientInput(this.inputStream);
                 clientTask.setMessage(message);
                 this.process(message);
+                Thread.yield();
             }
         } catch (IOException e) {
             e.printStackTrace();
