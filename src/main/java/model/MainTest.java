@@ -1,8 +1,18 @@
 package model;
 
-/**
- * Created by tmurzenkov on 12/7/2015.
- */
-public class MainTest {
+import model.client.Client;
+import org.apache.log4j.Logger;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class MainTest {
+    private static Logger logger = Logger.getLogger(MainTest.class);
+    public static void main(String[] args) throws IOException{
+        Thread serverThread = new Thread(new ServerLauncher(new File("config.xml")));
+        serverThread.setName("server_thread");
+        serverThread.start();
+        new Client(new File("config.xml"), new FileInputStream("commands.txt")).start(1);
+    }
 }

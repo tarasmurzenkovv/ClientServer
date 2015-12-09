@@ -3,8 +3,7 @@ package model.client;
 import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Map;
 
 public class Client {
@@ -24,21 +23,28 @@ public class Client {
     }
 
     public void start() {
-        new Thread(
-                new ClientTask(port, ip)
-                        .setInputStream(System.in)
-                        .setReplyListener(message -> System.out.println(message.receive().toString())))
-                .start();
-
-    }
-
-    public void start(int numberOfThreads) {
-        for (int i = 0; i < numberOfThreads+1; i++) {
+        try {
             new Thread(
                     new ClientTask(port, ip)
                             .setInputStream(System.in)
                             .setReplyListener(message -> System.out.println(message.receive().toString())))
                     .start();
+        } catch (IOException e) {
+            logger.error("Exception occurred while reading from System.in. Exception: ", e);
+        }
+    }
+
+    public void start(int numberOfThreads) {
+        for (int i = 0; i < numberOfThreads + 1; i++) {
+            try{
+                new Thread(
+                        new ClientTask(port, ip)
+                                .setInputStream(new FileInputStream("commands.txt"))
+                                .setReplyListener(message -> System.out.println(message.receive().toString())))
+                        .start();
+            }catch (IOException e) {
+                logger.error("Exception occurred while reading from System.in. Exception: ", e);
+            }
         }
     }
 }

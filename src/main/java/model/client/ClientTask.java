@@ -27,11 +27,11 @@ public class ClientTask implements Runnable {
         this.replyListener = replyListener;
         return this;
     }
-    public ClientTask setInputStream(InputStream inputStream){
+
+    public ClientTask setInputStream(InputStream inputStream) throws IOException{
         this.inputStream = inputStream;
         return this;
     }
-
 
     private void process(Message message) throws IOException {
         String command = message.getCommand();
@@ -65,14 +65,17 @@ public class ClientTask implements Runnable {
             Message message = new Message();
 
             System.out.print("Enter your name:");
-            message.setMessage(this.inputStream);
+            message.readClientInput(this.inputStream);
             clientTask.setMessage(message);
             message.send("REQUEST_INFO#" + message.getMessage());
             // process "hi" response
             clientTask.setReplyListener(this.replyListener);
+            clientTask.process(message);
             while (true) {
+                clientTask = new ClientTask(portNumber, serverAddrres);
                 message = new Message();
-                message.setMessage(this.inputStream);
+                message.readClientInput(this.inputStream);
+                clientTask.setMessage(message);
                 this.process(message);
             }
         } catch (IOException e) {

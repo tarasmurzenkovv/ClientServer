@@ -21,34 +21,35 @@ public class Message {
         return socket;
     }
 
-    public void setMessage(String message) {
+    public void readClientInput(String message) {
         this.message = message;
     }
 
-    public void setMessage(InputStream inputStream) throws IOException {
+    public synchronized void readClientInput(InputStream inputStream) throws IOException {
+
         String s;
         BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
         s = bufferRead.readLine();
+        System.out.println("got message from file: " + s);
         this.message = s;
     }
 
-    public String getCommand(){
-        String stringMessage = this.getMessage();
-        return StringUtils.upperCase(stringMessage.split("#")[0]);
+    public String getCommand() {
+        return StringUtils.upperCase(message.split("#")[0]);
     }
 
-    public void send(String message) throws IOException {
+    public synchronized void send(String message) throws IOException {
         DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
         dataOutputStream.writeUTF(message);
-        this.setMessage(message);
+        this.readClientInput(message);
         dataOutputStream.flush();
     }
 
-    public Message receive() throws IOException {
+    public synchronized Message receive() throws IOException {
         String data;
         DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream());
         data = dataInputStream.readUTF();
-        this.setMessage(data);
+        this.readClientInput(data);
         return this;
     }
 
