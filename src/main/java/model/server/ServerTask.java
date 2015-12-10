@@ -29,7 +29,7 @@ public class ServerTask implements Callable<Void> {
 
     private static String getInfoMessage() {
 
-        return "server:> Basic commands: \n" +
+        return  "server:> Basic commands: \n" +
                 "server:> - get server time - server_time\n" +
                 "server:> - send file to server - -file full_path_to_file\n" +
                 "server:> - number of connected clients - client_no\n" +
@@ -40,22 +40,23 @@ public class ServerTask implements Callable<Void> {
     public void process(Message message) throws IOException {
         // string pattern is the following: COMMAND_NAME#text, COMMAND_NAME or text
         String command = message.getCommand();
+        logger.debug("Got from client: " + command);
         switch (command) {
             case "REQUEST_INFO":
 
-                if ("REQUEST_INFO".equals(StringUtils.upperCase(message.getMessage()))) {
+                if("REQUEST_INFO".equals(StringUtils.upperCase(message.getMessage()))){
                     message.send(ServerTask.getInfoMessage());
-                } else {
+                }else {
                     String clientName = message.getMessage().split("#")[1];
                     message.send(ServerTask.getInfoMessage(clientName));
                 }
-
                 break;
             case "SERVER_TIME":
                 Date date = new Date();
                 message.send("server:>" + date.toString());
                 break;
             case "QUIT":
+                logger.debug("Client has disconnected: " + message.getSocket().getLocalSocketAddress().toString());
                 message.getSocket().close();
                 break;
             default:

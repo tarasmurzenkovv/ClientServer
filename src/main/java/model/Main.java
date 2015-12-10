@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 
 public class Main {
     private static Logger logger = Logger.getLogger(Main.class);
@@ -34,15 +33,14 @@ public class Main {
         return processedInputParams;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         String type = Main.processInputParams(args)[0];
         String fileName = Main.processInputParams(args)[1];
         File properties = new File(fileName);// load properties file
         switch (type) {
             case "-server":
                 logger.debug("Started in a server mode. ");
-                Server server = new Server(properties);
-                server.start();
+                Server.start(properties);
                 break;
             case "-client":
                 logger.debug("Started in a client mode. ");

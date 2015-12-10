@@ -17,47 +17,38 @@ public class Message {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public Socket getSocket() {
         return socket;
     }
 
-    public void readClientInput(String message) {
+    public void setMessage(String message) {
         this.message = message;
     }
 
-    public synchronized void readClientInput(InputStream inputStream) throws IOException {
-
+    public void setMessage(InputStream inputStream) throws IOException {
         String s;
         BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
         s = bufferRead.readLine();
-        System.out.println("got message from file: " + s);
         this.message = s;
     }
 
-    public String getCommand() {
-        return StringUtils.upperCase(message.split("#")[0]);
+    public String getCommand(){
+        String stringMessage = this.getMessage();
+        return StringUtils.upperCase(stringMessage.split("#")[0]);
     }
 
-    public synchronized void send(String message) {
-        try (DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream())){
-            dataOutputStream.writeUTF(message);
-            dataOutputStream.flush();
-        }
-        catch(IOException e){
-        }
+    public void send(String message) throws IOException {
+        DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
+        dataOutputStream.writeUTF(message);
+        this.setMessage(message);
+        dataOutputStream.flush();
     }
 
-    public synchronized Message receive() {
-        try (DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream())) {
-            String data = dataInputStream.readUTF();
-            this.setMessage(data);
-        } catch (IOException e) {
-
-        }
+    public Message receive() throws IOException {
+        String data;
+        DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream());
+        data = dataInputStream.readUTF();
+        this.setMessage(data);
         return this;
     }
 

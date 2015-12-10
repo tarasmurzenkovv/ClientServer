@@ -12,6 +12,7 @@ public class ClientTask implements Runnable {
     private ReplyListener replyListener;
     private InputStream inputStream;
     private static Message message;
+    private Socket socket;
 
     public ClientTask(int portNumber, String serverAddrres) {
         this.portNumber = portNumber;
@@ -20,7 +21,6 @@ public class ClientTask implements Runnable {
 
     public void setMessage(Message message) throws IOException {
         ClientTask.message = message;
-        ClientTask.message.setSocket(new Socket(this.serverAddrres, this.portNumber));
     }
 
     public ClientTask setReplyListener(ReplyListener replyListener) {
@@ -61,17 +61,17 @@ public class ClientTask implements Runnable {
     @Override
     public void run() {
         try {
-            ClientTask clientTask = new ClientTask(portNumber, serverAddrres);
             Message message = new Message();
 
             System.out.print("Enter your name:");
             message.setMessage(this.inputStream);
-            clientTask.setMessage(message);
+            message.setSocket(new Socket(this.serverAddrres, this.portNumber));
             message.send("REQUEST_INFO#" + message.getMessage());
+            this.replyListener.onReply(message);
             // process "hi" response
-            clientTask.setReplyListener(this.replyListener);
             while (true) {
                 message = new Message();
+                message.setSocket(new Socket(this.serverAddrres, this.portNumber));
                 message.setMessage(this.inputStream);
                 this.process(message);
             }
