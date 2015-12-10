@@ -17,6 +17,10 @@ public class Message {
         return message;
     }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public Socket getSocket() {
         return socket;
     }
@@ -38,18 +42,22 @@ public class Message {
         return StringUtils.upperCase(message.split("#")[0]);
     }
 
-    public synchronized void send(String message) throws IOException {
-        DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
-        dataOutputStream.writeUTF(message);
-        this.readClientInput(message);
-        dataOutputStream.flush();
+    public synchronized void send(String message) {
+        try (DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream())){
+            dataOutputStream.writeUTF(message);
+            dataOutputStream.flush();
+        }
+        catch(IOException e){
+        }
     }
 
-    public synchronized Message receive() throws IOException {
-        String data;
-        DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream());
-        data = dataInputStream.readUTF();
-        this.readClientInput(data);
+    public synchronized Message receive() {
+        try (DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream())) {
+            String data = dataInputStream.readUTF();
+            this.setMessage(data);
+        } catch (IOException e) {
+
+        }
         return this;
     }
 

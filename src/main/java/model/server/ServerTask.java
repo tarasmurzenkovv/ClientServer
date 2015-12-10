@@ -40,13 +40,11 @@ public class ServerTask implements Callable<Void> {
     public void process(Message message) throws IOException {
         // string pattern is the following: COMMAND_NAME#text, COMMAND_NAME or text
         String command = message.getCommand();
-        logger.debug("Got from client: " + command);
         switch (command) {
             case "REQUEST_INFO":
 
                 if ("REQUEST_INFO".equals(StringUtils.upperCase(message.getMessage()))) {
                     message.send(ServerTask.getInfoMessage());
-                    logger.debug("Send back the following message: " + ServerTask.getInfoMessage());
                 } else {
                     String clientName = message.getMessage().split("#")[1];
                     message.send(ServerTask.getInfoMessage(clientName));
@@ -56,10 +54,8 @@ public class ServerTask implements Callable<Void> {
             case "SERVER_TIME":
                 Date date = new Date();
                 message.send("server:>" + date.toString());
-                logger.debug("Sent back the following messages: " + "server:>" + date.toString());
                 break;
             case "QUIT":
-                logger.debug("Client has disconnected: " + message.getSocket().getLocalSocketAddress().toString());
                 message.getSocket().close();
                 break;
             default:

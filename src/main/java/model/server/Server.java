@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Server {
+public class Server implements Runnable {
     private int portNumber;
     private String hostAddress;
     private ExecutorService pool;
@@ -21,27 +21,28 @@ public class Server {
     private static final int NUMBER_OF_SPAWNED_THREADS = 50;
     private static Logger logger = Logger.getLogger(Server.class);
 
-    private Server(File file) throws IOException {
+    public Server(File file) throws IOException {
         Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(file);
         this.portNumber = (Integer) configs.get("port");
         this.hostAddress = (String) configs.get("ip");
         this.pool = Executors.newFixedThreadPool(NUMBER_OF_SPAWNED_THREADS);
     }
 
-    public static void start(File configFile) {
+    @Override
+    public void run() {
+        this.start();
+    }
+
+    public void start() {
         try {
-            Server server = new Server(configFile);
-            logger.debug("Server started with the following params: IP: " + server.hostAddress + " port: " + server.portNumber);
-            ServerSocket serverSocket = new ServerSocket(server.portNumber);
+            ServerSocket serverSocket = new ServerSocket(this.portNumber);
             while (true) {
                 try {
                     Server.socket = serverSocket.accept();
-                    String connectedIP = socket.getRemoteSocketAddress().toString();
-                    logger.debug("Client has connected: " + connectedIP);
                     Message message = new Message();
                     message.setSocket(Server.socket);
                     Callable<Void> serverTask = new ServerTask(message.receive());
-                    server.pool.submit(serverTask);
+                    this.pool.submit(serverTask);
                 } catch (IOException e) {
                     logger.error("Unable to process a message from client. Exception: ", e);
                 }
