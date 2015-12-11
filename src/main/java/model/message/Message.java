@@ -39,24 +39,19 @@ public class Message {
         return StringUtils.upperCase(stringMessage.split("#")[0]);
     }
 
-    public void send(String message) {
-        try (DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream())) {
-            dataOutputStream.writeUTF(message);
-            dataOutputStream.flush();
-        } catch (IOException e) {
-            logger.error("Exception occurred while sending a message. Exception: ", e);
-        }
+    public void send(String message) throws IOException{
+        DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
+        dataOutputStream.writeUTF(message);
+        dataOutputStream.flush();
+
         this.setStringMessage(message);
     }
 
-    public Message receive() {
+    public Message receive() throws IOException {
         String data;
-        try (DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream())) {
-            data = dataInputStream.readUTF();
-            this.setStringMessage(data);
-        } catch (IOException e) {
-            logger.error("Exception occurred while receiving a message. Exception: ", e);
-        }
+        DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream());
+        data = dataInputStream.readUTF();
+        this.setStringMessage(data);
         return this;
     }
 

@@ -35,14 +35,13 @@ public class Server {
             Server server = new Server(configFile);
             ServerSocket serverSocket = new ServerSocket(server.portNumber);
             while (true) {
+                if(countDownLatch.getCount() == 0){
+                    break;
+                }
                 try {
-                    if(countDownLatch.getCount() == 0){
-                        server.pool.shutdown();
-                    }
                     Server.socket = serverSocket.accept();
                     Message message = new Message();
                     message.setSocket(Server.socket);
-                    System.out.println("number of thread: " + countDownLatch.getCount());
                     Callable<Void> serverTask = new ServerTask(message.receive());
                     server.pool.submit(serverTask);
                 } catch (IOException e) {
@@ -50,7 +49,7 @@ public class Server {
                 }
             }
         } catch (IOException e) {
-            logger.error("Cannot start a server. The sever will exit. Exception stacktrace", e);
+            logger.error("Cannot start a server. The sever will exit. Exception: ", e);
             System.exit(0);
         }
     }
@@ -71,7 +70,7 @@ public class Server {
                 }
             }
         } catch (IOException e) {
-            logger.error("Cannot start a server. The sever will exit. Exception stacktrace", e);
+            logger.error("Cannot start a server. The sever will exit. Exception: ", e);
             System.exit(0);
         }
     }

@@ -13,7 +13,7 @@ public class MainTest {
 
     private static final int NUMBER_OF_THREADS = 4;
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException, InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(NUMBER_OF_THREADS);
 
         Thread serverThread = new Thread(() -> Server.start(new File("config.xml"), countDownLatch));
@@ -30,5 +30,8 @@ public class MainTest {
         clientThread.setName("Running client threads, " + 10);
         serverThread.start();
         clientThread.start();
+        if(countDownLatch.getCount() == 0){
+            System.exit(0);
+        }
     }
 }
