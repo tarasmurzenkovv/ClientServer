@@ -16,14 +16,14 @@ public class ClientTaskRunnable extends ClientTask implements Runnable {
             Message message = new Message();
             System.out.print("Enter your name:");
             message.setMessageInputSources(this.inputStream);
-            Socket socket = new Socket(this.serverAddrres, this.portNumber);
+            Socket socket = new Socket(this.serverAddress, this.portNumber);
             message.setSocket(socket);
             message.send("REQUEST_INFO#" + message.getMessage());
             this.replyListener.onReply(message);
             // process "hi" response
             while (true) {
                 message = new Message();
-                socket = new Socket(this.serverAddrres, this.portNumber);
+                socket = new Socket(this.serverAddress, this.portNumber);
                 message.setSocket(socket);
                 message.setMessageInputSources(this.inputStream);
                 this.process(message);

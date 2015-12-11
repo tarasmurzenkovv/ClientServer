@@ -32,7 +32,7 @@ public class Message {
         this.message = s;
     }
 
-    public String getCommand(){
+    public synchronized String getCommand(){
         String stringMessage = this.getMessage();
         return StringUtils.upperCase(stringMessage.split("#")[0]);
     }

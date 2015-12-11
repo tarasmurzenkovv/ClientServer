@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
@@ -32,14 +31,15 @@ public class Server{
     public static void start(File configFile) {
         try {
             Server server = new Server(configFile);
-            logger.debug("Server started with the following params: IP: " + server.hostAddress + " port: " + server.portNumber);
+            /*logger.debug("Server started with the following params: IP: " + server.hostAddress + " port: " + server.portNumber);
             logger.debug("Localhost: "+ InetAddress.getLocalHost().toString());
+            */
             ServerSocket serverSocket = new ServerSocket(server.portNumber);
             while (true) {
                 try {
                     Server.socket = serverSocket.accept();
                     String connectedIP = socket.getRemoteSocketAddress().toString();
-                    logger.debug("Client has connected: " + connectedIP);
+                    // logger.debug("Client has connected: " + connectedIP);
                     Message message = new Message();
                     message.setSocket(Server.socket);
                     Callable<Void> serverTask = new ServerTask(message.receive());

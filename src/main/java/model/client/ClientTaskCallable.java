@@ -10,25 +10,24 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class ClientTaskCallable extends ClientTask implements Callable<List<String>> {
-    public ClientTaskCallable(int portNumber, String serverAddrres) {
-        super(portNumber, serverAddrres);
+    public ClientTaskCallable(int portNumber, String serverAddress) {
+        super(portNumber, serverAddress);
     }
 
     @Override
     public List<String> call() throws Exception {
         List<String> serverReplies = new ArrayList<>();
         String fileLine;
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(this.inputStream));
-        super.setReplyListener(message->serverReplies.add(message.receive().getMessage()));
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(super.inputStream));
+        this.setReplyListener(message -> serverReplies.add(message.getMessage()));
 
-        while((fileLine = bufferedReader.readLine())!=null){
-            System.out.println(fileLine);
+        while ((fileLine = bufferedReader.readLine()) != null) {
             Message message = new Message();
-            Socket socket = new Socket(serverAddrres, portNumber);
+            Socket socket = new Socket(this.serverAddress, this.portNumber);
             message.setSocket(socket);
             message.setMessageInputSources(fileLine);
-            super.process(message);
+            this.process(message);
         }
-        return  serverReplies;
+        return serverReplies;
     }
 }

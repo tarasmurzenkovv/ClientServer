@@ -4,6 +4,8 @@ import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Client{
+public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
     private File configs;
     private InputStream inputStream;
@@ -28,7 +30,7 @@ public class Client{
         this.ip = (String) configs.get("ip");
     }
 
-    public Client start() {
+    public void start() {
         ClientTaskRunnable clientTaskRunnable = new ClientTaskRunnable(port, ip);
         clientTaskRunnable.setReplyListener(message -> System.out.println(message.receive().toString()));
         clientTaskRunnable.setInputStream(System.in);
@@ -36,27 +38,20 @@ public class Client{
         Thread clientThread = new Thread(clientTaskRunnable);
         clientThread.setName("client_thread");
         clientThread.start();
-        return this;
     }
 
-    public Client start(int numberOfThreads) {
+    public void start(int numberOfThreads) throws ExecutionException, InterruptedException, FileNotFoundException {
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
         List<String> collectedServerReplies = new ArrayList<>();
 
-        for (int i = 0; i < numberOfThreads + 1; i++) {
-            List<String> serverReplies = new ArrayList<>();
+        for (int i = 0; i < numberOfThreads; i++) {
             ClientTaskCallable clientTaskCallable = new ClientTaskCallable(port, ip);
-            clientTaskCallable.setReplyListener(message -> serverReplies.add(message.getMessage()));
-            clientTaskCallable.setInputStream(this.inputStream);
-            try {
-                collectedServerReplies.addAll(executorService.submit(clientTaskCallable).get());
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
+            FileInputStream fileInputStream = new FileInputStream("commands.txt");
+            clientTaskCallable.setInputStream(fileInputStream);
+            collectedServerReplies.addAll(executorService.submit(clientTaskCallable).get());
         }
-        executorService.shutdown();
         System.out.println("After processing a file");
         collectedServerReplies.forEach(System.out::println);
-        return this;
+        executorService.shutdown();
     }
 }
