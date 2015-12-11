@@ -21,11 +21,11 @@ public class Message {
         return socket;
     }
 
-    public void setMessage(String message) {
+    public void setMessageInputSources(String message) {
         this.message = message;
     }
 
-    public void setMessage(InputStream inputStream) throws IOException {
+    public void setMessageInputSources(InputStream inputStream) throws IOException {
         String s;
         BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
         s = bufferRead.readLine();
@@ -40,7 +40,7 @@ public class Message {
     public void send(String message) throws IOException {
         DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
         dataOutputStream.writeUTF(message);
-        this.setMessage(message);
+        this.setMessageInputSources(message);
         dataOutputStream.flush();
     }
 
@@ -48,7 +48,7 @@ public class Message {
         String data;
         DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream());
         data = dataInputStream.readUTF();
-        this.setMessage(data);
+        this.setMessageInputSources(data);
         return this;
     }
 

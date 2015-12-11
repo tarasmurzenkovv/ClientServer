@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Server {
+public class Server{
     private int portNumber;
     private String hostAddress;
     private ExecutorService pool;
@@ -53,4 +53,5 @@ public class Server {
             System.exit(0);
         }
     }
+
 }

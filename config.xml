@@ -1,6 +1,6 @@
 <config>
     <server port="8080"/>
     <client port="8080">
-        <ServerHost>192.168.0.102</ServerHost>
+        <ServerHost>192.168.168.120</ServerHost>
     </client>
 </config>
