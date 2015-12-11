@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,7 +41,7 @@ public class Client {
         clientThread.start();
     }
 
-    public void start(int numberOfThreads) throws ExecutionException, InterruptedException, FileNotFoundException {
+    public void start(int numberOfThreads, CountDownLatch countDownLatch) throws ExecutionException, InterruptedException, FileNotFoundException {
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
         List<String> collectedServerReplies = new ArrayList<>();
 
@@ -49,6 +50,7 @@ public class Client {
             FileInputStream fileInputStream = new FileInputStream("commands.txt");
             clientTaskCallable.setInputStream(fileInputStream);
             collectedServerReplies.addAll(executorService.submit(clientTaskCallable).get());
+            countDownLatch.countDown();
         }
         System.out.println("After processing a file");
         collectedServerReplies.forEach(System.out::println);

@@ -19,7 +19,7 @@ public class ClientTaskCallable extends ClientTask implements Callable<List<Stri
         List<String> serverReplies = new ArrayList<>();
         String fileLine;
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(super.inputStream));
-        this.setReplyListener(message -> serverReplies.add(message.getMessage()));
+        this.setReplyListener(message -> serverReplies.add(message.receive().getMessage()));
 
         while ((fileLine = bufferedReader.readLine()) != null) {
             Message message = new Message();

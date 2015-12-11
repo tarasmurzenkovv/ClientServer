@@ -39,10 +39,10 @@ public class ServerTask implements Callable<Void> {
 
     public void process(Message message) throws IOException {
         // string pattern is the following: COMMAND_NAME#text, COMMAND_NAME or text
-        //String command = message.getMessage();
-        // logger.debug("Got from client: " + command);
+        String command = message.getCommand();
+        logger.debug("Got command from client: " + command);
         String m = message.getMessage();
-        switch (m) {
+        switch (command) {
             case "REQUEST_INFO":
 
                 if ("REQUEST_INFO".equals(StringUtils.upperCase(message.getMessage()))) {
@@ -59,6 +59,7 @@ public class ServerTask implements Callable<Void> {
                 break;
             case "QUIT":
                 logger.debug("Client has disconnected: " + message.getSocket().getLocalSocketAddress().toString());
+                message.send("You have been disconnected.");
                 message.getSocket().close();
                 break;
             default:

@@ -26,28 +26,28 @@ public class ClientTask {
         this.inputStream = inputStream;
     }
 
-    protected void process(Message message) throws IOException {
-        String m = message.getMessage();
-        switch (m) {
-            case "REQUEST_INFO":
-                message.send(message.getMessage());
-                break;
-            case "SERVER_TIME":
-                message.send(message.getMessage());
-                break;
-            case "QUIT":
-                message.send(message.getMessage());
-                try {
+    protected void process(Message message) {
+        String command = message.getCommand();
+        try {
+            switch (command) {
+                case "REQUEST_INFO":
+                    message.send(message.getMessage());
+                    break;
+                case "SERVER_TIME":
+                    message.send(message.getMessage());
+                    break;
+                case "QUIT":
+                    message.send(message.getMessage());
                     System.out.println("You have been disconnected");
-                    Thread.sleep(40);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            default:
-                message.send(message.getMessage());
-                break;
+                    break;
+                default:
+                    message.send(message.getMessage());
+                    break;
+            }
+            logger.debug("Sent to server a string: " + command);
+            this.replyListener.onReply(message);
+        } catch (IOException e) {
+            logger.error("Exception occurred from 'process' method. Exception ", e);
         }
-        logger.debug("Sent to server a string: " + m);
-        this.replyListener.onReply(message);
     }
 }
