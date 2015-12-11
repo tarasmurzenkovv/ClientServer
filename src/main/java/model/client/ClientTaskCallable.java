@@ -25,7 +25,7 @@ public class ClientTaskCallable extends ClientTask implements Callable<List<Stri
             Message message = new Message();
             Socket socket = new Socket(this.serverAddress, this.portNumber);
             message.setSocket(socket);
-            message.setMessageInputSources(fileLine);
+            message.setStringMessage(fileLine);
             this.process(message);
         }
         return serverReplies;
