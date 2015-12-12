@@ -15,29 +15,26 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-    private int portNumber;
-    private String hostAddress;
+    private static int portNumber;
+    private static String hostAddress;
     private static ExecutorService pool;
+    private static ServerSocket serverSocket;
     private static Socket socket;
 
     private static final int NUMBER_OF_SPAWNED_THREADS = 50;
     private static Logger logger = Logger.getLogger(Server.class);
 
-    private Server(File file) throws IOException {
+    private static void init(File file) throws IOException {
         Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(file);
-        this.portNumber = (Integer) configs.get("port");
-        this.hostAddress = (String) configs.get("ip");
-        this.pool = Executors.newFixedThreadPool(NUMBER_OF_SPAWNED_THREADS);
+        Server.portNumber = (Integer) configs.get("port");
+        Server.hostAddress = (String) configs.get("ip");
+        Server.serverSocket = new ServerSocket(Server.portNumber);
+        Server.pool = Executors.newFixedThreadPool(NUMBER_OF_SPAWNED_THREADS);
     }
 
     public static void start(File configFile, CountDownLatch countDownLatch) {
         try {
-            //Server server = new Server(configFile);
-            Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(configFile);
-            int portNumber = (Integer) configs.get("port");
-            String hostAddress = (String) configs.get("ip");
-            ServerSocket serverSocket = new ServerSocket(portNumber);
-            Server.pool = Executors.newFixedThreadPool(NUMBER_OF_SPAWNED_THREADS);
+            Server.init(configFile);
             while (countDownLatch.getCount() != 1) {
                 try {
                     Server.socket = serverSocket.accept();
@@ -60,15 +57,14 @@ public class Server {
 
     public static void start(File configFile) {
         try {
-            Server server = new Server(configFile);
-            ServerSocket serverSocket = new ServerSocket(server.portNumber);
+            Server.init(configFile);
             while (true) {
                 try {
-                    Server.socket = serverSocket.accept();
+                    Server.socket = Server.serverSocket.accept();
                     Message message = new Message();
                     message.setSocket(Server.socket);
                     Callable<Void> serverTask = new ServerTask(message.receive());
-                    server.pool.submit(serverTask);
+                    Server.pool.submit(serverTask);
                 } catch (IOException e) {
                     logger.error("Unable to process a message from client. Exception: ", e);
                 }

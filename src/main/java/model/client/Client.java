@@ -17,20 +17,12 @@ public class Client {
     private InputStream inputStream;
     private int port;
     private String ip;
-    private String pathToFileWithCommands;
-    
+
     public Client(File file, InputStream inputStream) {
         this.inputStream = inputStream;
         Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(file);
         this.port = (Integer) configs.get("port");
         this.ip = (String) configs.get("ip");
-    }
-
-    public Client(File file, String pathToFileWithCommands) {
-        Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(file);
-        this.port = (Integer) configs.get("port");
-        this.ip = (String) configs.get("ip");
-        this.pathToFileWithCommands = pathToFileWithCommands;
     }
 
     public void start() {
@@ -43,24 +35,38 @@ public class Client {
         clientThread.start();
     }
 
+    private InputStream[] forkAGivenStream(InputStream inputStream, int numberOfThreads) throws IOException {
+        int read;
+        byte[] bytes = new byte[1024];
+        InputStream[] streams = new InputStream[numberOfThreads];
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        while ((read = inputStream.read(bytes)) != -1) {
+            bos.write(bytes, 0, read);
+        }
+        byte[] ba = bos.toByteArray();
+
+        for (int i = 0; i < numberOfThreads; i++) {
+            streams[i] = new ByteArrayInputStream(ba);
+        }
+        return streams;
+    }
+
     public void start(int numberOfThreads, CountDownLatch countDownLatch) {
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
         List<String> collectedServerReplies = new ArrayList<>();
-
-        for (int i = 0; i < numberOfThreads; i++) {
-            try {
+        try {
+            InputStream[] streams = this.forkAGivenStream(this.inputStream, numberOfThreads);
+            for (int i = 0; i < numberOfThreads; i++) {
                 ClientTaskCallable clientTaskCallable = new ClientTaskCallable(port, ip);
-                InputStream inputStream = new FileInputStream(pathToFileWithCommands);
-                clientTaskCallable.setInputStream(inputStream);
+                clientTaskCallable.setInputStream(streams[i]);
                 collectedServerReplies.addAll(executorService.submit(clientTaskCallable).get());
                 countDownLatch.countDown();
-            } catch (ExecutionException | InterruptedException | IOException e) {
-                logger.error("Exception occurred while processing a file with commands. Exception: ", e);
             }
+        } catch (ExecutionException | InterruptedException | IOException e) {
+            logger.error("Exception occurred while processing a file with commands. Exception: ", e);
         }
         collectedServerReplies.forEach(System.out::println);
         executorService.shutdown();
-        // I think it is really bad idea to terminate in a such manner ...
-        // System.exit(0);
     }
 }
