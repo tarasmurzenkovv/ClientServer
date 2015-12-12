@@ -38,7 +38,13 @@ public class ClientTask {
                     break;
                 case "QUIT":
                     message.send(message.getMessage());
-                    System.out.println("You have been disconnected");
+                    try {
+                        System.out.println("Buy! ");
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        logger.error("Exception occurred from 'process' method. Exception ", e);
+                    }
+                    System.exit(0);
                     break;
                 default:
                     message.send(message.getMessage());

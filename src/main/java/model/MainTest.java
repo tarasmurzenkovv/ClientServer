@@ -4,7 +4,6 @@ import model.client.Client;
 import model.server.Server;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -21,7 +20,7 @@ public class MainTest {
 
         Thread clientThread = new Thread(() -> {
             try {
-                new Client(new File("config.xml"), new FileInputStream("commands.txt")).start(NUMBER_OF_THREADS, countDownLatch);
+                new Client(new File("config.xml"), "commands.txt").start(NUMBER_OF_THREADS, countDownLatch);
 
             } catch (ExecutionException | IOException | InterruptedException e) {
                 e.printStackTrace();
