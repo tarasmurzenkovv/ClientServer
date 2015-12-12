@@ -3,10 +3,7 @@ package model.client;
 import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,15 +50,17 @@ public class Client {
         for (int i = 0; i < numberOfThreads; i++) {
             try {
                 ClientTaskCallable clientTaskCallable = new ClientTaskCallable(port, ip);
-                clientTaskCallable.setInputStream(new FileInputStream(pathToFileWithCommands));
+                InputStream inputStream = new FileInputStream(pathToFileWithCommands);
+                clientTaskCallable.setInputStream(inputStream);
                 collectedServerReplies.addAll(executorService.submit(clientTaskCallable).get());
                 countDownLatch.countDown();
             } catch (ExecutionException | InterruptedException | IOException e) {
                 logger.error("Exception occurred while processing a file with commands. Exception: ", e);
             }
         }
-        System.out.println("After processing a file");
         collectedServerReplies.forEach(System.out::println);
         executorService.shutdown();
+        // I think it is really bad idea to terminate in a such manner ...
+        // System.exit(0);
     }
 }

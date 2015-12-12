@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
 public class Server {
     private int portNumber;
     private String hostAddress;
-    private ExecutorService pool;
+    private static ExecutorService pool;
     private static Socket socket;
 
     private static final int NUMBER_OF_SPAWNED_THREADS = 50;
@@ -32,22 +32,26 @@ public class Server {
 
     public static void start(File configFile, CountDownLatch countDownLatch) {
         try {
-            Server server = new Server(configFile);
-            ServerSocket serverSocket = new ServerSocket(server.portNumber);
-            while (true) {
-                if(countDownLatch.getCount() == 0){
-                    break;
-                }
+            //Server server = new Server(configFile);
+            Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(configFile);
+            int portNumber = (Integer) configs.get("port");
+            String hostAddress = (String) configs.get("ip");
+            ServerSocket serverSocket = new ServerSocket(portNumber);
+            Server.pool = Executors.newFixedThreadPool(NUMBER_OF_SPAWNED_THREADS);
+            while (countDownLatch.getCount() != 1) {
                 try {
                     Server.socket = serverSocket.accept();
                     Message message = new Message();
                     message.setSocket(Server.socket);
                     Callable<Void> serverTask = new ServerTask(message.receive());
-                    server.pool.submit(serverTask);
+                    Server.pool.submit(serverTask);
                 } catch (IOException e) {
                     logger.error("Unable to process a message from client. Exception: ", e);
                 }
             }
+            Server.socket.close();
+            serverSocket.close();
+            Server.pool.shutdown();
         } catch (IOException e) {
             logger.error("Cannot start a server. The sever will exit. Exception: ", e);
             System.exit(0);

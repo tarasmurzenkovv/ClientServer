@@ -41,7 +41,6 @@ public class ServerTask implements Callable<Void> {
         // string pattern is the following: COMMAND_NAME#text, COMMAND_NAME or text
         String command = message.getCommand();
         logger.debug("Got command from client: " + command);
-        String m = message.getMessage();
         switch (command) {
             case "REQUEST_INFO":
 
