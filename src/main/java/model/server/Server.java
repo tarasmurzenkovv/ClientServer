@@ -1,5 +1,6 @@
 package model.server;
 
+import model.client.ReplyListener;
 import model.message.Message;
 import model.utils.ConfigLoader;
 import org.apache.log4j.Logger;
@@ -22,7 +23,9 @@ public class Server {
     private static Socket socket;
 
     private static final int NUMBER_OF_SPAWNED_THREADS = 50;
+
     private static Logger logger = Logger.getLogger(Server.class);
+
 
     private static void init(File file) throws IOException {
         Map<String, Object> configs = ConfigLoader.loadXMLConfigsFromFile(file);
@@ -32,15 +35,15 @@ public class Server {
         Server.pool = Executors.newFixedThreadPool(NUMBER_OF_SPAWNED_THREADS);
     }
 
-    public static void start(File configFile, CountDownLatch countDownLatch) {
+    public static void start(File configFile, ReplyListener replyListener, CountDownLatch countDownLatch) {
         try {
             Server.init(configFile);
-            while (countDownLatch.getCount() != 1) {
+            while (countDownLatch.getCount() != -1) {
                 try {
                     Server.socket = serverSocket.accept();
                     Message message = new Message();
                     message.setSocket(Server.socket);
-                    Callable<Void> serverTask = new ServerTask(message.receive());
+                    Callable<Void> serverTask = new ServerTask(message.receive()).setReplyListener(replyListener);
                     Server.pool.submit(serverTask);
                 } catch (IOException e) {
                     logger.error("Unable to process a message from client. Exception: ", e);
@@ -50,12 +53,12 @@ public class Server {
             serverSocket.close();
             Server.pool.shutdown();
         } catch (IOException e) {
-            logger.error("Cannot start a server. The sever will exit. Exception: ", e);
+            logger.error("Cannot start a server. The server thread will be terminated. Exception: ", e);
             System.exit(0);
         }
     }
 
-    public static void start(File configFile) {
+    public static void start(File configFile, ReplyListener replyListener) {
         try {
             Server.init(configFile);
             while (true) {
@@ -63,7 +66,7 @@ public class Server {
                     Server.socket = Server.serverSocket.accept();
                     Message message = new Message();
                     message.setSocket(Server.socket);
-                    Callable<Void> serverTask = new ServerTask(message.receive());
+                    Callable<Void> serverTask = new ServerTask(message.receive()).setReplyListener(replyListener);
                     Server.pool.submit(serverTask);
                 } catch (IOException e) {
                     logger.error("Unable to process a message from client. Exception: ", e);

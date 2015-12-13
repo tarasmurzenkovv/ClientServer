@@ -1,5 +1,6 @@
 package model.server;
 
+import model.client.ReplyListener;
 import model.message.Message;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -10,10 +11,12 @@ import java.util.concurrent.Callable;
 
 public class ServerTask implements Callable<Void> {
     private Message message;
+    private ReplyListener replyListener;
     private static Logger logger = Logger.getLogger(ServerTask.class);
 
     public ServerTask(Message message) {
         this.message = message;
+
     }
 
     private static String getInfoMessage(String clientName) {
@@ -36,34 +39,40 @@ public class ServerTask implements Callable<Void> {
                 "server:> - disconnect - type quit\n";
     }
 
+    public ServerTask setReplyListener(ReplyListener replyListener) {
+        this.replyListener = replyListener;
+        return this;
+    }
 
     public void process(Message message) throws IOException {
-        // string pattern is the following: COMMAND_NAME#text, COMMAND_NAME or text
         String command = message.getCommand();
         logger.debug("Got command from client: " + command);
         switch (command) {
             case "REQUEST_INFO":
 
-                if ("REQUEST_INFO".equals(StringUtils.upperCase(message.getMessage()))) {
+                if ("REQUEST_INFO".equals(StringUtils.upperCase(message.getCommand()))) {
                     logger.debug("Sent back to client: " + ServerTask.getInfoMessage());
                     message.send(ServerTask.getInfoMessage());
                 } else {
-                    String clientName = message.getMessage().split("#")[1];
-                    message.send(ServerTask.getInfoMessage(clientName));
+                    message.send(ServerTask.getInfoMessage(message.getName()));
                 }
+                this.replyListener.onReply(message);
                 break;
             case "SERVER_TIME":
                 Date date = new Date();
                 message.send("server:>" + date.toString());
+                this.replyListener.onReply(message);
                 break;
             case "QUIT":
                 logger.debug("Client has disconnected: " + message.getSocket().getLocalSocketAddress().toString());
                 message.send("You have been disconnected.");
+                this.replyListener.onReply(message);
                 message.getSocket().close();
                 break;
             default:
-                logger.debug("Sending back to a client " + message.getMessage());
+                logger.debug("Sending back to a client " + message.getText());
                 message.send("server:> " + message.getMessage());
+                this.replyListener.onReply(message);
                 break;
         }
     }

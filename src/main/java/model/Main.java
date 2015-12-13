@@ -1,6 +1,7 @@
 package model;
 
 import model.client.Client;
+import model.client.ReplyListener;
 import model.server.Server;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -9,6 +10,7 @@ import java.io.File;
 
 public class Main {
     private static Logger logger = Logger.getLogger(Main.class);
+
     private static String[] processInputParams(String[] args) {
         String type = null;
         String fileName = null;
@@ -37,14 +39,16 @@ public class Main {
         String type = Main.processInputParams(args)[0];
         String fileName = Main.processInputParams(args)[1];
         File properties = new File(fileName);// load properties file
+
+        ReplyListener reply = m -> System.out.println("name: " + m.getName() + " text: " + m.getText());
         switch (type) {
             case "-server":
                 logger.debug("Started in a server mode. ");
-                Server.start(properties);
+                Server.start(properties, reply);
                 break;
             case "-client":
                 logger.debug("Started in a client mode. ");
-                new Client(properties,System.in).start();
+                new Client(properties, System.in).start();
                 break;
         }
     }
