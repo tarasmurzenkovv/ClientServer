@@ -49,7 +49,7 @@ public class Client {
         return streams;
     }
 
-    public void start(int numberOfThreads, CountDownLatch countDownLatch) {
+    public List<String> start(int numberOfThreads, CountDownLatch countDownLatch) {
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
         List<String> collectedServerReplies = new ArrayList<>();
         try {
@@ -68,5 +68,6 @@ public class Client {
         }
         collectedServerReplies.forEach(System.out::println);
         executorService.shutdown();
+        return collectedServerReplies;
     }
 }
