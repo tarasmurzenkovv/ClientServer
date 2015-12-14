@@ -7,10 +7,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
@@ -55,14 +52,18 @@ public class Client {
     public void start(int numberOfThreads, CountDownLatch countDownLatch) {
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
         List<String> collectedServerReplies = new ArrayList<>();
+        List<Future<List<String>>> expectedServerReplies = new ArrayList<>();
         try {
             InputStream[] streams = this.forkAGivenStream(this.inputStream, numberOfThreads);
             for (int i = 0; i < numberOfThreads; i++) {
                 ClientTaskCallable clientTaskCallable = new ClientTaskCallable(port, ip);
                 clientTaskCallable.setInputStream(streams[i]);
+                Future<List<String>> expectedServerRepliesPerClient = executorService.submit(clientTaskCallable);
+                expectedServerReplies.add(expectedServerRepliesPerClient);
                 collectedServerReplies.addAll(executorService.submit(clientTaskCallable).get());
                 countDownLatch.countDown();
             }
+
         } catch (ExecutionException | InterruptedException | IOException e) {
             logger.error("Exception occurred while processing a file with commands. Exception: ", e);
         }

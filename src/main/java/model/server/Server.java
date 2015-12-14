@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -31,7 +30,7 @@ public class Server {
         Server.portNumber = (Integer) configs.get("port");
         Server.hostAddress = (String) configs.get("ip");
         Server.serverSocket = new ServerSocket(Server.portNumber);
-        Server.serverSocket.setSoTimeout(200);
+        //Server.serverSocket.setSoTimeout(200);
         Server.pool = Executors.newFixedThreadPool(NUMBER_OF_SPAWNED_THREADS);
     }
 
@@ -39,15 +38,15 @@ public class Server {
         try {
             Server.init(configFile);
             while (countDownLatch.getCount() != 0) {
-                try {
+                //try {
                     Server.socket = serverSocket.accept();
                     Message message = new Message();
                     message.setSocket(Server.socket);
-                    Callable<Void> serverTask = new ServerTask(message.receive()).setReplyListener(replyListener);
+                    Callable<Void> serverTask = new ServerTaskCallable(message.receive()).setReplyListener(replyListener);
                     Server.pool.submit(serverTask);
-                } catch (SocketTimeoutException e){
+                /*} catch (SocketTimeoutException e){
                     System.out.println("Finished testing");
-                }
+                }*/
             }
             Server.socket.close();
             serverSocket.close();
@@ -66,7 +65,7 @@ public class Server {
                     Server.socket = Server.serverSocket.accept();
                     Message message = new Message();
                     message.setSocket(Server.socket);
-                    Callable<Void> serverTask = new ServerTask(message.receive()).setReplyListener(replyListener);
+                    Callable<Void> serverTask = new ServerTaskCallable(message.receive()).setReplyListener(replyListener);
                     Server.pool.submit(serverTask);
                 } catch (IOException e) {
                     logger.error("Unable to process a message from client. Exception: ", e);

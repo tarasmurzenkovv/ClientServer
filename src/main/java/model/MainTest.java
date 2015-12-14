@@ -25,14 +25,16 @@ public class MainTest {
 
         List<String> serverReplies = new ArrayList<>();
 
-        ReplyListener collector = m -> serverReplies.add(m.getMessage());
+        ReplyListener collector = m -> m.setStringMessage(m.getMessage());
 
         Thread serverThread = new Thread(() -> Server.start(new File("config.xml"), collector, countDownLatch));
         Thread clientThread = new Thread(() -> new Client(new File("config.xml"), inputStream).start(NUMBER_OF_THREADS, countDownLatch));
+        clientThread.setDaemon(true);
+        serverThread.setDaemon(true);
 
         executorService.submit(serverThread);
         executorService.submit(clientThread);
-        System.out.println(serverReplies);
-        executorService.shutdown();
+        //System.out.println(serverReplies);
+        executorService.shutdownNow();
     }
 }

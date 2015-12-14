@@ -39,7 +39,7 @@ public class ClientTask {
                 case "QUIT":
                     message.send(message.getMessage());
                     try {
-                        System.out.println("Buy! ");
+                        //System.out.println("Buy! ");
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
                         logger.error("Exception occurred from 'process' method. Exception ", e);
@@ -49,8 +49,8 @@ public class ClientTask {
                     message.send(message.getMessage());
                     break;
             }
-            logger.debug("Sent to server a string: " + command);
-            this.replyListener.onReply(message);
+            //logger.debug("Sent to server a string: " + command);
+            ///////this.replyListener.onReply(message);
         } catch (IOException e) {
             logger.error("Exception occurred from 'process' method. Exception ", e);
         }
