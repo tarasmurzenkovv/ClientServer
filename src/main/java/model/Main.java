@@ -1,7 +1,6 @@
 package model;
 
 import model.client.Client;
-import model.client.ReplyListener;
 import model.server.Server;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;

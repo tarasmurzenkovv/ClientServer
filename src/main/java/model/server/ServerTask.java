@@ -1,6 +1,6 @@
 package model.server;
 
-import model.client.ReplyListener;
+import model.ReplyListener;
 import model.message.Message;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;

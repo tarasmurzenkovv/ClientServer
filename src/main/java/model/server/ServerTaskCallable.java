@@ -1,6 +1,6 @@
 package model.server;
 
-import model.client.ReplyListener;
+import model.ReplyListener;
 import model.message.Message;
 
 import java.util.concurrent.Callable;
@@ -18,7 +18,6 @@ public class ServerTaskCallable extends ServerTask implements Callable<Void> {
     @Override
     public Void call() throws Exception {
         this.process(this.message);
-        System.out.println("from call method: " + this.message.toString());
         return null;
     }
 }

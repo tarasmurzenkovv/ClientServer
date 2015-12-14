@@ -25,8 +25,9 @@ public class Message {
         return socket;
     }
 
-    public void setStringMessage(String message) {
+    public Message setStringMessage(String message) {
         this.message = message;
+        return this;
     }
 
     public void setMessageInputSources(InputStream inputStream) throws IOException {
