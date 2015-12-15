@@ -1,6 +1,7 @@
 package model.client;
 
 import model.utils.ConfigLoader;
+import modeltest.ClientTaskCallable;
 import org.apache.log4j.Logger;
 
 import java.io.*;

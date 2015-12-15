@@ -1,7 +1,0 @@
-request_info#dasfklgj;dlf@name_of_sender
-server_time#@name_of_sender
-server_time#@name_of_sender
-server_time#@name_of_sender
-server_time#@name_of_sender
-request_info#@name_of_sender
-quit#@name_of_sender
