@@ -41,12 +41,12 @@ public class ServerTask {
 
     public void process(Message message) throws IOException {
         String command = message.getCommand();
-        //logger.debug("Got command from client: " + command);
+        logger.debug("Got command from client: " + command);
         switch (command) {
             case "REQUEST_INFO":
 
                 if ("REQUEST_INFO".equals(StringUtils.upperCase(message.getCommand()))) {
-                    //logger.debug("Sent back to client: " + ServerTask.getInfoMessage());
+                    //logger.debug(ôâûà"Sent back to client: " + ServerTasôûâàôûâËk.getInfoMessage());
                     message.send(ServerTask.getInfoMessage(message.getName()));
                 } else {
                     message.send(ServerTask.getInfoMessage());

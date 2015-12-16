@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -36,6 +37,7 @@ public class Server {
     public static void start(File configFile, ReplyListener replyListener) {
         try {
             Server.init(configFile);
+            System.out.println("local server adrr: "+ InetAddress.getLocalHost().toString());
             while (true) {
                 try {
                     Server.socket = Server.serverSocket.accept();

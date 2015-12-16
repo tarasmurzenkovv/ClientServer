@@ -15,7 +15,7 @@ import java.util.stream.IntStream;
 
 public class MainTest {
 
-    private static final int NUMBER_OF_THREADS = 100;
+    private static final int NUMBER_OF_THREADS = 2;
     private static final String FILE_NAME_WITH_COMMANDS = "commands.txt";
     private static final int NUMBER_OF_COMMANDS_TO_GENERATE = 1000;
 
@@ -28,8 +28,7 @@ public class MainTest {
         List<String> actualServerReplies;
         List<String> actualClientRecivers;
 
-        ReplyListener replyListener = m -> {
-        };
+        ReplyListener replyListener = m -> {};
 
         Callable<List<String>> clientThread = () -> new Client(new File("config.xml"), inputStream).start(NUMBER_OF_THREADS, countDownLatch);
         Callable<List<String>> serverThread = () -> Server.start(new File("config.xml"), replyListener, countDownLatch);
@@ -44,7 +43,7 @@ public class MainTest {
             actualClientRecivers = expectedClientMessages.get();
             executorService.shutdownNow();
 
-            IntStream lengthOfReplies = IntStream.range(0, actualServerReplies.size() - 1);
+            IntStream lengthOfReplies = IntStream.range(0, actualServerReplies.size() - 2);
 
             lengthOfReplies.forEach(index -> {
                 if (!actualClientRecivers.get(index).equals(actualServerReplies.get(index))) {
