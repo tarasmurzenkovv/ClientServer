@@ -46,7 +46,7 @@ public class ServerTask {
             case "REQUEST_INFO":
 
                 if ("REQUEST_INFO".equals(StringUtils.upperCase(message.getCommand()))) {
-                    //logger.debug(ôâûà"Sent back to client: " + ServerTask.getInfoMessage());
+                    //logger.debug(ôâûà"Sent back to client: " + ServerTasôûâàôûâËk.getInfoMessage());
                     message.send(ServerTask.getInfoMessage(message.getName()));
                 } else {
                     message.send(ServerTask.getInfoMessage());
