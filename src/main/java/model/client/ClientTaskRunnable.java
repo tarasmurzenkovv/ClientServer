@@ -15,10 +15,10 @@ public class ClientTaskRunnable extends ClientTask implements Runnable {
         try {
             Message message = new Message();
             System.out.print("Enter your name:");
-            message.setMessageInputSources(this.inputStream);
             Socket socket = new Socket(this.serverAddress, this.portNumber);
+            message.setMessageInputSources(this.inputStream);
             message.setSocket(socket);
-            message.send("REQUEST_INFO#" + message.getMessage());
+            message.send("REQUEST_INFO#@" + message.getMessage());
             this.replyListener.onReply(message);
             // process "hi" response
             while (true) {
