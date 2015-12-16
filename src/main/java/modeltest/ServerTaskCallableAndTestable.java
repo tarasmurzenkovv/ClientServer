@@ -19,6 +19,6 @@ public class ServerTaskCallableAndTestable extends ServerTask implements Callabl
     @Override
     public String call() throws Exception {
         this.process(this.message);
-        return this.message.getMessage();
+        return this.message.getStringText();
     }
 }

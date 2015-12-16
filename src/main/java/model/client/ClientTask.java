@@ -32,13 +32,13 @@ public class ClientTask {
         try {
             switch (command) {
                 case "REQUEST_INFO":
-                    message.send(message.getMessage());
+                    message.send(message.getStringText());
                     break;
                 case "SERVER_TIME":
-                    message.send(message.getMessage());
+                    message.send(message.getStringText());
                     break;
                 case "QUIT":
-                    message.send(message.getMessage());
+                    message.send(message.getStringText());
                     try {
                         System.out.println("Buy! ");
                         Thread.sleep(100);
@@ -48,7 +48,7 @@ public class ClientTask {
                     }
                     break;
                 default:
-                    message.send(message.getMessage());
+                    message.send(message.getStringText());
                     break;
             }
             //logger.debug("Sent to server a string: " + command);

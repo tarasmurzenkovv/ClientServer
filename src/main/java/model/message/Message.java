@@ -11,22 +11,22 @@ import java.net.Socket;
  */
 public class Message {
     private Socket socket;
-    private String message;
+    private String stringText;
 
-    public void setSocket(Socket socket) {
-        this.socket = socket;
-    }
-
-    public String getMessage() {
-        return message;
+    public String getStringText() {
+        return stringText;
     }
 
     public Socket getSocket() {
         return socket;
     }
 
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
     public Message setStringMessage(String message) {
-        this.message = message;
+        this.stringText = message;
         return this;
     }
 
@@ -34,25 +34,31 @@ public class Message {
         String s;
         BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
         s = bufferRead.readLine();
-        this.message = s;
+        this.stringText = s;
     }
 
     public String getCommand() {
-        return (message.indexOf('#') == -1) ? "" : StringUtils.upperCase(message.split("#")[0]);
+        if (stringText.length() == 1) {
+            return stringText;
+        }
+        return (stringText.indexOf('#') == -1) ? "" : StringUtils.upperCase(stringText.split("#")[0]);
     }
 
     public String getName() {
-        return message.split("@")[1];
+        if (stringText.length() == 1) {
+            return "";
+        }
+        return stringText.split("@")[1];
     }
 
     public String getText() {
-        int positionOfAtSign = (message.indexOf('@') == -1) ? 0 : message.indexOf('@');
-        int positionOfSharp = (message.indexOf('#') == -1) ? 0 : message.indexOf('#');
+        int positionOfAtSign = (stringText.indexOf('@') == -1) ? 0 : stringText.indexOf('@');
+        int positionOfSharp = (stringText.indexOf('#') == -1) ? 0 : stringText.indexOf('#');
 
-        if(positionOfAtSign == positionOfSharp){
+        if (positionOfAtSign - 1 == positionOfSharp) {
             return "";
         }
-        return message.substring(positionOfSharp + 1, positionOfAtSign);
+        return stringText.substring(positionOfSharp, positionOfAtSign);
     }
 
     public void send(String message) throws IOException {
@@ -72,6 +78,6 @@ public class Message {
 
     @Override
     public String toString() {
-        return this.message;
+        return "entered text:" + this.getText() + " entered command: " + this.getCommand() + " entered name: " + this.getName();
     }
 }

@@ -30,7 +30,8 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <outputDirectory>C:\Users\tmurzenkov\Desktop\apps</outputDirectory>
+                    <outputDirectory>/Users/terance1/Desktop/</outputDirectory>
+                    <!--<outputDirectory>C:\Users\tmurzenkov\Desktop\apps</outputDirectory>-->
                     <finalName>app</finalName>
                     <!--Avoid conctanating "jar-with-dependencies"-->
                     <appendAssemblyId>false</appendAssemblyId>

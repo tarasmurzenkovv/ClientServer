@@ -10,9 +10,9 @@ import java.util.Date;
 
 public class ServerTask {
 
+    private static Logger logger = Logger.getLogger(ServerTaskCallable.class);
     protected Message message;
     protected ReplyListener replyListener;
-    private static Logger logger = Logger.getLogger(ServerTaskCallable.class);
 
     public ServerTask(Message message) {
         this.message = message;
@@ -23,15 +23,16 @@ public class ServerTask {
         return "server:> Successful connection has been established. \n" +
                 "server:> Got your name: " + clientName + "\n" +
                 "server:> Basic commands: \n" +
-                "server:> - get server time - server_time\n" +
-                "server:> - disconnect - type quit\n";
+                "server:> - get server time - server_time#\n" +
+                "server:> - disconnect - type quit#\n" +
+                "server:> - list commands - type request_info#\n";
     }
 
     private static String getInfoMessage() {
 
         return "server:> Basic commands: \n" +
-                "server:> - get server time - server_time\n" +
-                "server:> - disconnect - type quit\n";
+                "server:> - get server time - server_time#\n" +
+                "server:> - disconnect - type quit#\n";
     }
 
     public ServerTask setReplyListener(ReplyListener replyListener) {
@@ -41,12 +42,11 @@ public class ServerTask {
 
     public void process(Message message) throws IOException {
         String command = message.getCommand();
-        logger.debug("Got command from client: " + command);
+        logger.debug("Got command from client: " + message.toString());
         switch (command) {
             case "REQUEST_INFO":
-
                 if ("REQUEST_INFO".equals(StringUtils.upperCase(message.getCommand()))) {
-                    //logger.debug(ôâûà"Sent back to client: " + ServerTasôûâàôûâËk.getInfoMessage());
+                    //logger.debug(ï¿½ï¿½ï¿½ï¿½"Sent back to client: " + ServerTasï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½k.getInfoMessage());
                     message.send(ServerTask.getInfoMessage(message.getName()));
                 } else {
                     message.send(ServerTask.getInfoMessage());
@@ -66,8 +66,9 @@ public class ServerTask {
                 break;
             default:
                 //logger.debug("Sending back to a client " + message.getText());
-                message.send("server:> " + message.getMessage());
+                logger.debug("client name: " + message.getName() + " client text: " + message.getText());
                 this.replyListener.onReply(message);
+                message.send("server:> " + message.getText());
                 break;
         }
     }

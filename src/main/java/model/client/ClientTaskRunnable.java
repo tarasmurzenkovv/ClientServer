@@ -18,7 +18,8 @@ public class ClientTaskRunnable extends ClientTask implements Runnable {
             Socket socket = new Socket(this.serverAddress, this.portNumber);
             message.setMessageInputSources(this.inputStream);
             message.setSocket(socket);
-            message.send("REQUEST_INFO#@" + message.getMessage());
+            String clientName = message.getStringText();
+            message.send("REQUEST_INFO#@" + clientName);
             this.replyListener.onReply(message);
             // process "hi" response
             while (true) {
@@ -26,6 +27,8 @@ public class ClientTaskRunnable extends ClientTask implements Runnable {
                 socket = new Socket(this.serverAddress, this.portNumber);
                 message.setSocket(socket);
                 message.setMessageInputSources(this.inputStream);
+                String getInputString = message.getStringText();
+                message.setStringMessage(getInputString + "@" + clientName);
                 this.process(message);
             }
         } catch (IOException e) {

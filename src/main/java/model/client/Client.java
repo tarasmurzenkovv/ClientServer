@@ -8,14 +8,10 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
-import java.util.concurrent.*;
-=======
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
->>>>>>> origin/master
 
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
@@ -32,7 +28,7 @@ public class Client {
 
     public void start() {
         ClientTaskRunnable clientTaskRunnable = new ClientTaskRunnable(port, ip);
-        clientTaskRunnable.setReplyListener(message -> System.out.println(message.receive().toString()));
+        clientTaskRunnable.setReplyListener(message -> System.out.println(message.receive().getStringText()));
         clientTaskRunnable.setInputStream(this.inputStream);
 
         Thread clientThread = new Thread(clientTaskRunnable);
@@ -68,16 +64,9 @@ public class Client {
                 collectedServerReplies.addAll(executorService.submit(clientTaskCallable).get());
                 countDownLatch.countDown();
             }
-<<<<<<< HEAD
-
         } catch ( ExecutionException  |IOException e) {
             logger.error("Exception occurred while processing a file with commands. Exception: ", e);
-        } catch (InterruptedException e){
-=======
-        } catch (ExecutionException | IOException e) {
-            logger.error("Exception occurred while processing a file with commands. Exception: ", e);
         } catch (InterruptedException e) {
->>>>>>> origin/master
             Thread.currentThread().interrupt();
         }
         collectedServerReplies.forEach(System.out::println);
