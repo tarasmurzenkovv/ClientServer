@@ -39,7 +39,7 @@ public class Main {
         String fileName = Main.processInputParams(args)[1];
         File properties = new File(fileName);// load properties file
 
-        model.ReplyListener reply = m -> System.out.println("name: " + m.getName() + " text: " + m.getText());
+        ReplyListener reply = m -> System.out.println("name: " + m.getName() + " text: " + m.getText());
         switch (type) {
             case "-server":
                 logger.debug("Started in a server mode. ");

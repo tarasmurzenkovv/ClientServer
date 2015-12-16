@@ -41,7 +41,7 @@ public class ServerTask {
 
     public void process(Message message) throws IOException {
         String command = message.getCommand();
-        //logger.debug("Got command from client: " + command);
+        logger.debug("Got command from client: " + command);
         switch (command) {
             case "REQUEST_INFO":
 
