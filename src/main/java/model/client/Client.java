@@ -26,7 +26,6 @@ public class Client {
         ClientTaskRunnable clientTaskRunnable = new ClientTaskRunnable(port, ip);
         clientTaskRunnable.setReplyListener(message -> System.out.println(message.receive().toString()));
         clientTaskRunnable.setInputStream(this.inputStream);
-
         Thread clientThread = new Thread(clientTaskRunnable);
         clientThread.setName("client_thread");
         clientThread.start();
@@ -60,7 +59,6 @@ public class Client {
                 collectedServerReplies.addAll(executorService.submit(clientTaskCallable).get());
                 countDownLatch.countDown();
             }
-
         } catch ( ExecutionException  |IOException e) {
             logger.error("Exception occurred while processing a file with commands. Exception: ", e);
         } catch (InterruptedException e){

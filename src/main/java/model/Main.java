@@ -38,7 +38,6 @@ public class Main {
         String type = Main.processInputParams(args)[0];
         String fileName = Main.processInputParams(args)[1];
         File properties = new File(fileName);// load properties file
-
         ReplyListener reply = m -> System.out.println("name: " + m.getName() + " text: " + m.getText());
         switch (type) {
             case "-server":
