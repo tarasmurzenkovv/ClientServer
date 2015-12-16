@@ -45,28 +45,23 @@ public class ServerTask {
         logger.debug("Got command from client: " + message.toString());
         switch (command) {
             case "REQUEST_INFO":
+                this.replyListener.onReply(message);
                 if ("REQUEST_INFO".equals(StringUtils.upperCase(message.getCommand()))) {
-                    //logger.debug(����"Sent back to client: " + ServerTas��������k.getInfoMessage());
                     message.send(ServerTask.getInfoMessage(message.getName()));
                 } else {
                     message.send(ServerTask.getInfoMessage());
                 }
-                this.replyListener.onReply(message);
                 break;
             case "SERVER_TIME":
-                Date date = new Date();
-                message.send("server:>" + date.toString());
                 this.replyListener.onReply(message);
+                message.send("server:>" + new Date().toString());
                 break;
             case "QUIT":
-                //logger.debug("Client has disconnected: " + message.getSocket().getLocalSocketAddress().toString());
-                message.send("You have been disconnected.");
                 this.replyListener.onReply(message);
+                message.send("You have been disconnected.");
                 message.getSocket().close();
                 break;
             default:
-                //logger.debug("Sending back to a client " + message.getText());
-                logger.debug("client name: " + message.getName() + " client text: " + message.getText());
                 this.replyListener.onReply(message);
                 message.send("server:> " + message.getText());
                 break;
