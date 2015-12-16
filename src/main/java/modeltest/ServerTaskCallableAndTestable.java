@@ -1,7 +1,8 @@
-package model.server;
+package modeltest;
 
 import model.ReplyListener;
 import model.message.Message;
+import model.server.ServerTask;
 
 import java.util.concurrent.Callable;
 

@@ -1,5 +1,6 @@
-package model.client;
+package modeltest;
 
+import model.client.ClientTask;
 import model.message.Message;
 
 import java.io.BufferedReader;

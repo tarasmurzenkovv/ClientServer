@@ -51,7 +51,7 @@ public class ClientTask {
                     break;
             }
             //logger.debug("Sent to server a string: " + command);
-            ///////this.replyListener.onReply(message);
+            this.replyListener.onReply(message);
         } catch (IOException e) {
             logger.error("Exception occurred from 'process' method. Exception ", e);
         }
